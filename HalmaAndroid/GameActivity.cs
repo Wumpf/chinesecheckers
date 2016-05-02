@@ -11,14 +11,14 @@ namespace HalmaAndroid
     [Activity(Label = "HalmaAndroid", MainLauncher = true, Icon = "@drawable/icon")]
     public class GameActivity : Activity
     {
-        private Level level;
+        private GameBoard gameBoard;
 
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
 
-            level = new Level();
-            var view = new GameView(this, level);
+            gameBoard = new GameBoard();
+            var view = new GameView(this, gameBoard);
 
             // Set our view from the "main" layout resource
             SetContentView(view);

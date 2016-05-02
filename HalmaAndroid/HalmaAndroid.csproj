@@ -65,7 +65,7 @@
     <Compile Include="GameActivity.cs" />
     <Compile Include="GameView.cs" />
     <Compile Include="HexCoord.cs" />
-    <Compile Include="Level.cs" />
+    <Compile Include="GameBoard.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

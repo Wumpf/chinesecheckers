@@ -5,7 +5,7 @@ using System.Text;
 
 namespace HalmaAndroid
 {
-    class Level
+    class GameBoard
     {
         public enum Field
         {
@@ -19,9 +19,9 @@ namespace HalmaAndroid
             Player5,
         }
 
-        private Dictionary<HexCoord, Field> fields = new Dictionary<HexCoord, Field>();
+        private readonly Dictionary<HexCoord, Field> fields = new Dictionary<HexCoord, Field>();
 
-        public Level()
+        public GameBoard()
         {
             for (int q = -5; q < 8; q++)
             {

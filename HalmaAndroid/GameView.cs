@@ -15,24 +15,24 @@ namespace HalmaAndroid
 {
     class GameView : View
     {
-        private Level level;
+        private GameBoard gameBoard;
 
-        public GameView(Context context, Level level) : base(context)
+        public GameView(Context context, GameBoard gameBoard) : base(context)
         {
-            this.level = level;
+            this.gameBoard = gameBoard;
         }
 
         protected override void OnDraw(Canvas canvas)
         {
             base.OnDraw(canvas);
 
-            DrawFields(level.GetFields(), canvas);
+            DrawFields(gameBoard.GetFields(), canvas);
         }
 
         const float offsetPercent = 0.01f;
         const float fieldRadius = 0.2f;
 
-        private static void DrawFields(IEnumerable<KeyValuePair<HexCoord, Level.Field>> fields, Canvas canvas)
+        private static void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields, Canvas canvas)
         {
             // Gather points in cartesian coordinates.
             // All spatial properties here might be precomputed
@@ -40,10 +40,10 @@ namespace HalmaAndroid
             float minY = int.MaxValue;
             float maxX = int.MinValue;
             float maxY = int.MinValue;
-            var fieldsCartesian = new List<KeyValuePair<System.Drawing.PointF, Level.Field>>();
-            foreach (KeyValuePair<HexCoord, Level.Field> field in fields)
+            var fieldsCartesian = new List<KeyValuePair<System.Drawing.PointF, GameBoard.Field>>();
+            foreach (KeyValuePair<HexCoord, GameBoard.Field> field in fields)
             {
-                if (field.Value == Level.Field.Invalid)
+                if (field.Value == GameBoard.Field.Invalid)
                     continue;
 
                 float x, y;
@@ -55,7 +55,7 @@ namespace HalmaAndroid
                 minY = System.Math.Min(minY, y);
                 maxY = System.Math.Max(maxY, y);
 
-                fieldsCartesian.Add(new KeyValuePair<System.Drawing.PointF, Level.Field>(point, field.Value));
+                fieldsCartesian.Add(new KeyValuePair<System.Drawing.PointF, GameBoard.Field>(point, field.Value));
             }
             float extentX = maxX - minX;
             float extentY = maxY - minY;
