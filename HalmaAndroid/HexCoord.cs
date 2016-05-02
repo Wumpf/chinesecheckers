@@ -42,6 +42,17 @@ namespace HalmaAndroid
 
         #region Math
 
+        public static HexCoord operator * (HexCoord coord, int factor)
+        {
+            return new HexCoord(coord.X *factor, coord.Y *factor, coord.Z * factor);
+        }
+
+        public static HexCoord operator + (HexCoord a, HexCoord b)
+        {
+            return new HexCoord(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        }
+
+
         public void ToCartesian(out float x, out float y)
         {
             x = (float)System.Math.Sqrt(3) * (this.X + this.Z/2.0f);
@@ -67,7 +78,7 @@ namespace HalmaAndroid
         /// Directions, corresponding to the static Directions array.
         /// Naming assumes "pointy topped" hexagons and has postive rotation.
         /// </summary>
-        enum Direction
+        public enum Direction
         {
             East,
             NorthEast,

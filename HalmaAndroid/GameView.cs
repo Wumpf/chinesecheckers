@@ -29,8 +29,14 @@ namespace HalmaAndroid
             DrawFields(gameBoard.GetFields(), canvas);
         }
 
-        const float offsetPercent = 0.01f;
-        const float fieldRadius = 0.2f;
+        private static readonly Color[] playerColors = new Color[6]
+        {
+            Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Black, Color.Violet
+        };
+
+        private const float offsetPercent = 0.1f;
+        private const float fieldRadius = 0.2f;
+        private const float playerRadius = 0.4f;
 
         private static void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields, Canvas canvas)
         {
@@ -68,8 +74,8 @@ namespace HalmaAndroid
 
             float scale = System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / extentX,
                                           (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / extentY);
-            float offsetX = (drawAreaWidth / scale - (maxX - minX)) / 2 - minX + drawAreaWidth * offsetPercent / scale;
-            float offsetY = (drawAreaHeight / scale - (maxY - minY)) / 2 - minY + drawAreaHeight * offsetPercent / scale;
+            float offsetX = (drawAreaWidth/scale - (maxX - minX))/2 - minX;
+            float offsetY = (drawAreaHeight/scale - (maxY - minY))/2 - minY;
 
             canvas.Scale(scale, scale);
             canvas.Translate(offsetX, offsetY);
@@ -88,9 +94,24 @@ namespace HalmaAndroid
             };
             fieldPaint.SetStyle(Paint.Style.Fill);
 
+            Paint playerPaint = new Paint
+            {
+                AntiAlias = true,
+            };
+            fieldPaint.SetStyle(Paint.Style.Fill);
+
             foreach (var field in fieldsCartesian)
             {
-                canvas.DrawCircle(field.Key.X, field.Key.Y, fieldRadius, fieldPaint);
+                int player = GameBoard.GetPlayerNumber(field.Value);
+                if (player >= 0)
+                {
+                    playerPaint.Color = playerColors[player];
+                    canvas.DrawCircle(field.Key.X, field.Key.Y, playerRadius, playerPaint);
+                }
+                else
+                {
+                    canvas.DrawCircle(field.Key.X, field.Key.Y, fieldRadius, fieldPaint);
+                }
             }
         }
     }
