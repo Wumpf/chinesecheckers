@@ -19,12 +19,21 @@ namespace HalmaAndroid
 
         public GameView(Context context, GameBoard gameBoard) : base(context)
         {
+            this.SetPadding(0, 0, 0, 0);
             this.gameBoard = gameBoard;
         }
 
         protected override void OnDraw(Canvas canvas)
         {
             base.OnDraw(canvas);
+
+            // Clear background.
+            canvas.Matrix = new Matrix();
+            Paint background = new Paint
+            {
+                Color = Color.White
+            };
+            canvas.DrawPaint(background);
 
             DrawFields(gameBoard.GetFields(), canvas);
         }
@@ -34,7 +43,7 @@ namespace HalmaAndroid
             Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Black, Color.Violet
         };
 
-        private const float offsetPercent = 0.1f;
+        private const float offsetPercent = 0.05f;
         private const float fieldRadius = 0.2f;
         private const float playerRadius = 0.4f;
 
@@ -81,12 +90,6 @@ namespace HalmaAndroid
             canvas.Translate(offsetX, offsetY);
 
             // Draw points
-            Paint background = new Paint
-            {
-                Color = Color.White
-            };
-            canvas.DrawPaint(background);
-
             Paint fieldPaint = new Paint
             {
                 AntiAlias = true,
