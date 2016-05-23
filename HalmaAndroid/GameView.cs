@@ -58,7 +58,7 @@ namespace HalmaAndroid
             var fieldsCartesian = new List<KeyValuePair<System.Drawing.PointF, GameBoard.Field>>();
             foreach (KeyValuePair<HexCoord, GameBoard.Field> field in fields)
             {
-                if (field.Value == GameBoard.Field.Invalid)
+                if (field.Value.Type == GameBoard.FieldType.Invalid)
                     continue;
 
                 float x, y;
@@ -105,7 +105,7 @@ namespace HalmaAndroid
 
             foreach (var field in fieldsCartesian)
             {
-                int player = GameBoard.GetPlayerNumber(field.Value);
+                int player = field.Value.PlayerPiece; //GameBoard.GetPlayerGoal(field.Value.Type);
                 if (player >= 0)
                 {
                     playerPaint.Color = playerColors[player];

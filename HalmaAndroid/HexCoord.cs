@@ -52,11 +52,21 @@ namespace HalmaAndroid
             return new HexCoord(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
+        public static HexCoord operator -(HexCoord a, HexCoord b)
+        {
+            return new HexCoord(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        }
+
 
         public void ToCartesian(out float x, out float y)
         {
             x = (float)System.Math.Sqrt(3) * (this.X + this.Z/2.0f);
             y = 3.0f/2.0f*this.Z;
+        }
+
+        public int Length()
+        {
+            return (System.Math.Abs(X) + System.Math.Abs(Y) + System.Math.Abs(Z)) / 2;
         }
 
         public int Distance(HexCoord b)
@@ -69,6 +79,7 @@ namespace HalmaAndroid
             // It's a manhattan distance!
             return (System.Math.Abs(a.X - b.X) + System.Math.Abs(a.Y - b.Y) + System.Math.Abs(a.Z - b.Z)) / 2;
         }
+
 
         #endregion
 
