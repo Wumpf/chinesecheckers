@@ -17,10 +17,18 @@ namespace HalmaAndroid
     {
         private GameBoard gameBoard;
 
+        private Rect visibleRect = new Rect();
+
         public GameView(Context context, GameBoard gameBoard) : base(context)
         {
             this.SetPadding(0, 0, 0, 0);
             this.gameBoard = gameBoard;
+        }
+
+        protected override void OnSizeChanged(int w, int h, int oldw, int oldh)
+        {
+            base.OnSizeChanged(w, h, oldw, oldh);
+            GetWindowVisibleDisplayFrame(visibleRect);
         }
 
         protected override void OnDraw(Canvas canvas)
@@ -47,7 +55,7 @@ namespace HalmaAndroid
         private const float fieldRadius = 0.2f;
         private const float playerRadius = 0.4f;
 
-        private static void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields, Canvas canvas)
+        private void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields, Canvas canvas)
         {
             // Gather points in cartesian coordinates.
             // All spatial properties here might be precomputed
@@ -76,15 +84,18 @@ namespace HalmaAndroid
             float extentY = maxY - minY;
 
             // Transform to fit canvas' clipping space. It is important not to use canvas.Width/Height directly, since the system's buttom bar bar clips!
-            Rect clipBounds = new Rect(0, 0, canvas.Width, canvas.Height);
-            canvas.GetClipBounds(clipBounds);
-            int drawAreaWidth = clipBounds.Width();
-            int drawAreaHeight = clipBounds.Height();
-
+            int drawAreaWidth = visibleRect.Width();
+            int drawAreaHeight = visibleRect.Height();
             float scale = System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / extentX,
                                           (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / extentY);
-            float offsetX = (drawAreaWidth/scale - (maxX - minX))/2 - minX;
-            float offsetY = (drawAreaHeight/scale - (maxY - minY))/2 - minY;
+            float offsetX = (drawAreaWidth/scale - (maxX - minX))/2 - minX + visibleRect.Left / scale;
+            float offsetY = (drawAreaHeight/scale - (maxY - minY))/2 - minY + visibleRect.Top / scale;
+
+            canvas.DrawCircle(0, 0, canvas.ClipBounds.Top+ 10, new Paint
+            {
+                AntiAlias = true,
+                Color = Color.Black,
+            });
 
             canvas.Scale(scale, scale);
             canvas.Translate(offsetX, offsetY);
@@ -102,6 +113,7 @@ namespace HalmaAndroid
                 AntiAlias = true,
             };
             fieldPaint.SetStyle(Paint.Style.Fill);
+
 
             foreach (var field in fieldsCartesian)
             {
