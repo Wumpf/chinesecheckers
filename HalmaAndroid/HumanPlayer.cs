@@ -18,7 +18,7 @@ namespace HalmaAndroid
         private GameBoard gameBoard;
 
         private HexCoord movingPiecePos;
-        private bool pieceSelected;
+        private bool pieceSelected = false;
 
         public HumanPlayer(uint playerNumber, GameView view) : base(playerNumber)
         {
@@ -60,6 +60,7 @@ namespace HalmaAndroid
             gameBoard = null;
             gameView.FieldTouched -= OnFieldTouched;
             gameView.HasHighlighted = false;
+            pieceSelected = false;
         }
     }
 }

@@ -70,7 +70,6 @@ namespace HalmaAndroid
 
         private readonly Dictionary<HexCoord, Field> fields = new Dictionary<HexCoord, Field>();
 
-
         public GameBoard()
         {
             Config = Configuration.STAR_2;
@@ -151,6 +150,18 @@ namespace HalmaAndroid
                     current = backup + dirA + dirB;
                 }
             }
+        }
+
+        /// <summary>
+        /// Executes a given turn. Attention: Will execute even if the turn is illegal or meaningless.1
+        /// </summary>
+        public void ExecuteTurn(Turn turn)
+        {
+            var fromBefore = this[turn.From];
+            var toBefore = this[turn.To];
+
+            this[turn.From] = new Field() { Type = fromBefore.Type, PlayerPiece = toBefore.PlayerPiece };
+            this[turn.To] = new Field() { Type = toBefore.Type, PlayerPiece = fromBefore.PlayerPiece };
         }
 
         /// <summary>

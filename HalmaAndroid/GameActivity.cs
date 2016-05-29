@@ -29,10 +29,10 @@ namespace HalmaAndroid
 
             // Setup players.
             players = new Player[] { new HumanPlayer(0, gameView), new HumanPlayer(1, gameView) };
-            setCurrentPlayer(0);
+            startTurn(0);
         }
 
-        private void setCurrentPlayer(uint newCurrentPlayer)
+        private void startTurn(uint newCurrentPlayer)
         {
             currentPlayer = newCurrentPlayer;
             players[currentPlayer].TurnReady += OnPlayerTurnReady;
@@ -59,7 +59,7 @@ namespace HalmaAndroid
 
         private void ExecuteTurn(Turn turn)
         {
-            // todo.
+            gameBoard.ExecuteTurn(turn);
 
             if (CheckCurrentPlayerHasWon())
             {
@@ -67,8 +67,11 @@ namespace HalmaAndroid
             }
             else
             {
-                setCurrentPlayer((currentPlayer + 1) % (uint)players.Length);
+                players[currentPlayer].OnTurnEnded();
+                startTurn((currentPlayer + 1) % (uint)players.Length);
             }
+
+            gameView.Invalidate();
         }
 
         /// <summary>
