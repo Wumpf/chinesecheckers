@@ -26,8 +26,26 @@ namespace HalmaAndroid
         private float gameDrawOffsetY;
         private float gameDrawScale;
 
-        bool hasHighlighted = false;
-        HexCoord highlightedPos;
+        public bool HasHighlighted
+        {
+            get { return hasHighlighted; }
+            set
+            {
+                hasHighlighted = value;
+                Invalidate();
+            }
+        }
+        private bool hasHighlighted = false;
+        public HexCoord HighlightedPos
+        {
+            get { return highlightedPos; }
+            set
+            {
+                highlightedPos = value;
+                Invalidate();
+            }
+        }
+        private HexCoord highlightedPos;
 
         private void DrawToGameSpace(float drawX, float drawY, out float gameX, out float gameY)
         {
@@ -45,14 +63,6 @@ namespace HalmaAndroid
         {
             this.SetPadding(0, 0, 0, 0);
             this.gameBoard = gameBoard;
-
-            // ##### for debugging only todo.
-            OnFieldTouched += (HexCoord coord) =>
-            {
-                hasHighlighted = true;
-                highlightedPos = coord;
-                Invalidate();
-            };
         }
 
         public override bool OnTouchEvent(MotionEvent e)
@@ -170,7 +180,7 @@ namespace HalmaAndroid
             if(hasHighlighted)
             {
                 float highlightedX, highlightedY;
-                highlightedPos.ToCartesian(out highlightedX, out highlightedY);
+                HighlightedPos.ToCartesian(out highlightedX, out highlightedY);
 
                 Paint highlightPaint = new Paint
                 {
