@@ -52,11 +52,20 @@ namespace HalmaAndroid
             return new HexCoord(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
-        public static HexCoord operator -(HexCoord a, HexCoord b)
+        public static HexCoord operator - (HexCoord a, HexCoord b)
         {
             return new HexCoord(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         }
 
+        public static bool operator == (HexCoord a, HexCoord b)
+        {
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+        }
+
+        public static bool operator !=(HexCoord a, HexCoord b)
+        {
+            return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
+        }
 
         public void ToCartesian(out float x, out float y)
         {
