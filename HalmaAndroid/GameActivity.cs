@@ -12,6 +12,7 @@ namespace HalmaAndroid
     public class GameActivity : Activity
     {
         private GameBoard gameBoard;
+        private GameView gameView;
         private Player[] players;
         private uint currentPlayer = 0;
 
@@ -20,21 +21,21 @@ namespace HalmaAndroid
             base.OnCreate(bundle);
 
             gameBoard = new GameBoard();
-            var view = new GameView(this, gameBoard);
+            gameView = new GameView(this, gameBoard);
             RequestWindowFeature(WindowFeatures.NoTitle);
 
             // Set our view from the "main" layout resource
-            SetContentView(view);
+            SetContentView(gameView);
 
             // Setup players.
-            players = new Player[] { new HumanPlayer(0, view), new HumanPlayer(1, view) };
+            players = new Player[] { new HumanPlayer(0, gameView), new HumanPlayer(1, gameView) };
             setCurrentPlayer(0);
         }
 
         private void setCurrentPlayer(uint newCurrentPlayer)
         {
             currentPlayer = newCurrentPlayer;
-            players[currentPlayer].OnTurnReady += OnPlayerTurnReady;
+            players[currentPlayer].TurnReady += OnPlayerTurnReady;
             players[currentPlayer].OnTurnStarted(gameBoard);
 
             // todo: trigger visualization/feedback
@@ -44,28 +45,30 @@ namespace HalmaAndroid
         {
             if(turn.IsValidTurn(gameBoard, currentPlayer))
             {
-                players[currentPlayer].OnTurnReady -= OnPlayerTurnReady;
+                players[currentPlayer].TurnReady -= OnPlayerTurnReady;
 
                 ExecuteTurn(turn);
-
-                if (CheckCurrentPlayerHasWon())
-                {
-                    // todo: Winning.
-                }
-                else
-                {
-                    setCurrentPlayer((currentPlayer + 1) % (uint)players.Length);
-                }
             }
             else
             {
                 // todo: Unallowed turn.
             }
+
+            gameView.HasHighlighted = false;
         }
 
         private void ExecuteTurn(Turn turn)
         {
             // todo.
+
+            if (CheckCurrentPlayerHasWon())
+            {
+                // todo: Winning.
+            }
+            else
+            {
+                setCurrentPlayer((currentPlayer + 1) % (uint)players.Length);
+            }
         }
 
         /// <summary>

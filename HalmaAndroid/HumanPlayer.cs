@@ -15,6 +15,10 @@ namespace HalmaAndroid
     class HumanPlayer : Player
     {
         private readonly GameView gameView;
+        private GameBoard gameBoard;
+
+        private HexCoord movingPiecePos;
+        private bool pieceSelected;
 
         public HumanPlayer(uint playerNumber, GameView view) : base(playerNumber)
         {
@@ -23,18 +27,39 @@ namespace HalmaAndroid
 
         public override void OnTurnStarted(GameBoard currentBoard)
         {
-            gameView.OnFieldTouched += OnFieldTouched;
+            gameBoard = currentBoard;
+            gameView.FieldTouched += OnFieldTouched;
         }
 
         private void OnFieldTouched(HexCoord hexcoord)
         {
-            gameView.HasHighlighted = true;
-            gameView.HighlightedPos = hexcoord;
+            int selectedPiece = gameBoard[hexcoord].PlayerPiece;
+
+            // Selected piece to move.
+            if (selectedPiece == PlayerIndex)
+            {
+                pieceSelected = true;
+                gameView.HasHighlighted = true;
+                movingPiecePos = hexcoord;
+                gameView.HighlightedPos = hexcoord;
+            }
+            // Target selected.
+            else if (pieceSelected && selectedPiece < 0)
+            {
+                OnTurnReady(new Turn() { From = movingPiecePos, To = hexcoord });
+            }
+            // Invalid selection
+            else
+            {
+                // todo: Some kind of feedback?
+            }
         }
 
         public override void OnTurnEnded()
         {
-            gameView.OnFieldTouched -= OnFieldTouched;
+            gameBoard = null;
+            gameView.FieldTouched -= OnFieldTouched;
+            gameView.HasHighlighted = false;
         }
     }
 }

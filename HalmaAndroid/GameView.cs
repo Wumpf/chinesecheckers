@@ -19,8 +19,8 @@ namespace HalmaAndroid
 
         private Rect visibleRect = new Rect();
 
-        public delegate void FieldTouched(HexCoord hexcoord);
-        public event FieldTouched OnFieldTouched;
+        public delegate void FieldTouchedHandler(HexCoord hexcoord);
+        public event FieldTouchedHandler FieldTouched;
 
         private float gameDrawOffsetX;
         private float gameDrawOffsetY;
@@ -31,8 +31,11 @@ namespace HalmaAndroid
             get { return hasHighlighted; }
             set
             {
-                hasHighlighted = value;
-                Invalidate();
+                if (hasHighlighted != value)
+                {
+                    hasHighlighted = value;
+                    Invalidate();
+                }
             }
         }
         private bool hasHighlighted = false;
@@ -41,8 +44,11 @@ namespace HalmaAndroid
             get { return highlightedPos; }
             set
             {
-                highlightedPos = value;
-                Invalidate();
+                if (highlightedPos != value)
+                {
+                    highlightedPos = value;
+                    Invalidate();
+                }
             }
         }
         private HexCoord highlightedPos;
@@ -67,7 +73,7 @@ namespace HalmaAndroid
 
         public override bool OnTouchEvent(MotionEvent e)
         {
-            if (OnFieldTouched != null &&
+            if (FieldTouched != null &&
                 (e.Action == MotionEventActions.Down || e.ButtonState == MotionEventButtonState.Primary))
             {
                 float pointerViewX = e.GetX() + visibleRect.Left;
@@ -87,7 +93,7 @@ namespace HalmaAndroid
                     // Assume you can only press a single field.
                     if (distanceSq < highlightRadius * highlightRadius)
                     {
-                        OnFieldTouched(field.Key);
+                        FieldTouched(field.Key);
                         break;
                     }
                 }
@@ -177,7 +183,7 @@ namespace HalmaAndroid
             canvas.Translate(gameDrawOffsetX, gameDrawOffsetY);
 
             // Draw highlight if any.
-            if(hasHighlighted)
+            if (hasHighlighted)
             {
                 float highlightedX, highlightedY;
                 HighlightedPos.ToCartesian(out highlightedX, out highlightedY);

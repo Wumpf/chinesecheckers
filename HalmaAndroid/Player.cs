@@ -16,7 +16,7 @@ namespace HalmaAndroid
     {
         protected Player(uint playerNumber)
         {
-            PlayerNumber = playerNumber;
+            PlayerIndex = playerNumber;
         }
 
         /// <summary>
@@ -30,12 +30,21 @@ namespace HalmaAndroid
         /// Delegate for OnTurnReady event.
         /// </summary>
         /// <param name="turn">Turn the player came up with. Needs to be validated!</param>
-        public delegate void SuggestTurn(Turn turn);
+        public delegate void TurnSuggestionHandler(Turn turn);
 
         /// <summary>
         /// Fired when the player came up with a turn.
         /// </summary>
-        public event SuggestTurn OnTurnReady;
+        public event TurnSuggestionHandler TurnReady;
+
+        protected void OnTurnReady(Turn turn)
+        {
+            TurnSuggestionHandler handler = TurnReady;
+            if (handler != null)
+            {
+                handler(turn);
+            }
+        }
 
         /// <summary>
         /// Signals the player that it's turn has ended.
@@ -46,6 +55,6 @@ namespace HalmaAndroid
         /// <summary>
         /// The index of the player in the current game.
         /// </summary>
-        public readonly uint PlayerNumber;
+        public readonly uint PlayerIndex;
     }
 }
