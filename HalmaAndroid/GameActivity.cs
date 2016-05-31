@@ -11,17 +11,17 @@ namespace HalmaAndroid
     [Activity(Label = "HalmaAndroid", MainLauncher = true, Icon = "@drawable/icon", Theme = "@android:style/Theme.Light.NoTitleBar")]
     public class GameActivity : Activity
     {
-        private GameBoard gameBoard;
+        internal GameBoard GameBoard { get; private set; }
         private GameView gameView;
         private Player[] players;
-        private uint currentPlayer = 0;
+        public uint CurrentPlayer { get; private set; } = 0;
 
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
 
-            gameBoard = new GameBoard();
-            gameView = new GameView(this, gameBoard);
+            GameBoard = new GameBoard();
+            gameView = new GameView(this, this);
             RequestWindowFeature(WindowFeatures.NoTitle);
 
             // Set our view from the "main" layout resource
@@ -34,18 +34,18 @@ namespace HalmaAndroid
 
         private void startTurn(uint newCurrentPlayer)
         {
-            currentPlayer = newCurrentPlayer;
-            players[currentPlayer].TurnReady += OnPlayerTurnReady;
-            players[currentPlayer].OnTurnStarted(gameBoard);
+            CurrentPlayer = newCurrentPlayer;
+            players[CurrentPlayer].TurnReady += OnPlayerTurnReady;
+            players[CurrentPlayer].OnTurnStarted(GameBoard);
 
             // todo: trigger visualization/feedback
         }
 
         private void OnPlayerTurnReady(Turn turn)
         {
-            if(turn.IsValidTurn(gameBoard, currentPlayer))
+            if(turn.IsValidTurn(GameBoard, CurrentPlayer))
             {
-                players[currentPlayer].TurnReady -= OnPlayerTurnReady;
+                players[CurrentPlayer].TurnReady -= OnPlayerTurnReady;
 
                 ExecuteTurn(turn);
             }
@@ -59,7 +59,7 @@ namespace HalmaAndroid
 
         private void ExecuteTurn(Turn turn)
         {
-            gameBoard.ExecuteTurn(turn);
+            GameBoard.ExecuteTurn(turn);
 
             if (CheckCurrentPlayerHasWon())
             {
@@ -67,8 +67,8 @@ namespace HalmaAndroid
             }
             else
             {
-                players[currentPlayer].OnTurnEnded();
-                startTurn((currentPlayer + 1) % (uint)players.Length);
+                players[CurrentPlayer].OnTurnEnded();
+                startTurn((CurrentPlayer + 1) % (uint)players.Length);
             }
 
             gameView.Invalidate();

@@ -15,9 +15,15 @@ namespace HalmaAndroid
 {
     class GameView : View
     {
-        private GameBoard gameBoard;
+        private GameActivity game;
+
+        private Typeface typeface;
+        private Bitmap gradient0;
 
         private Rect visibleRect = new Rect();
+        private Rect gameBoardRect = new Rect();
+        private int playerInfoBarHeight = 150;
+        private int playerTextHeight = 80;
 
         public delegate void FieldTouchedHandler(HexCoord hexcoord);
         public event FieldTouchedHandler FieldTouched;
@@ -65,10 +71,13 @@ namespace HalmaAndroid
             drawY = (gameY + gameDrawOffsetY) * gameDrawScale;
         }
 
-        public GameView(Context context, GameBoard gameBoard) : base(context)
+        public GameView(Context context, GameActivity game) : base(context)
         {
             this.SetPadding(0, 0, 0, 0);
-            this.gameBoard = gameBoard;
+            this.game = game;
+
+            typeface = Typeface.Create(Typeface.SansSerif, TypefaceStyle.Normal);
+            gradient0 = BitmapFactory.DecodeResource(Context.Resources, Resource.Drawable.gradient0);
         }
 
         public override bool OnTouchEvent(MotionEvent e)
@@ -81,7 +90,7 @@ namespace HalmaAndroid
                 float pointerCoordGameX, pointerCoordGameY;
                 DrawToGameSpace(pointerViewX, pointerViewY, out pointerCoordGameX, out pointerCoordGameY);
 
-                foreach (var field in gameBoard.GetFields())
+                foreach (var field in game.GameBoard.GetFields())
                 {
                     float fieldX, fieldY;
                     field.Key.ToCartesian(out fieldX, out fieldY);
@@ -106,6 +115,10 @@ namespace HalmaAndroid
         {
             base.OnSizeChanged(w, h, oldw, oldh);
             GetWindowVisibleDisplayFrame(visibleRect);
+            gameBoardRect.Top = visibleRect.Top + playerInfoBarHeight;
+            gameBoardRect.Bottom = visibleRect.Bottom;
+            gameBoardRect.Left = visibleRect.Left;
+            gameBoardRect.Right = visibleRect.Right;
         }
 
         protected override void OnDraw(Canvas canvas)
@@ -120,7 +133,9 @@ namespace HalmaAndroid
             };
             canvas.DrawPaint(background);
 
-            DrawFields(gameBoard.GetFields(), canvas);
+            DrawFields(game.GameBoard.GetFields(), canvas);
+            canvas.Matrix = new Matrix();
+            DrawPlayerInfo(canvas);
         }
 
         private static readonly Color[] playerColors = new Color[6]
@@ -134,8 +149,31 @@ namespace HalmaAndroid
         private const float fieldRadius = 0.2f;
         private const float playerRadius = 0.4f;
         private const float highlightRadius = 0.7f;
-        
 
+        private void DrawPlayerInfo(Canvas canvas)
+        {
+            Paint textPaint = new Paint
+            {
+                AntiAlias = true,
+                Color = playerColors[game.CurrentPlayer],
+                TextSize = playerTextHeight
+            };
+            textPaint.SetTypeface(typeface);
+
+            string text = "Player " + (game.CurrentPlayer + 1).ToString();
+
+            var metrics = textPaint.GetFontMetrics();
+            float x = visibleRect.Left + (visibleRect.Width() - textPaint.MeasureText(text)) / 2.0f;
+            float y = visibleRect.Top + (playerInfoBarHeight + playerTextHeight) / 2.0f;
+            canvas.DrawText(text, x, y, textPaint);
+
+            Paint shadowPaint = new Paint
+            {
+                Color = Color.Argb(70, 70, 70, 70)
+            };
+
+            canvas.DrawBitmap(gradient0, new Rect(0, 0, gradient0.Width, gradient0.Height), new Rect(visibleRect.Left, gameBoardRect.Top, visibleRect.Right, gameBoardRect.Top + 24), shadowPaint);
+        }
 
         private void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields, Canvas canvas)
         {
@@ -166,12 +204,12 @@ namespace HalmaAndroid
             float extentY = maxY - minY;
 
             // Transform to fit canvas' clipping space. It is important not to use canvas.Width/Height directly, since the system's buttom bar bar clips!
-            int drawAreaWidth = visibleRect.Width();
-            int drawAreaHeight = visibleRect.Height();
+            int drawAreaWidth = gameBoardRect.Width();
+            int drawAreaHeight = gameBoardRect.Height();
             gameDrawScale = System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / extentX,
                                           (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / extentY);
-            gameDrawOffsetX = (drawAreaWidth / gameDrawScale - (maxX - minX)) / 2 - minX + visibleRect.Left / gameDrawScale;
-            gameDrawOffsetY = (drawAreaHeight / gameDrawScale - (maxY - minY)) / 2 - minY + visibleRect.Top / gameDrawScale;
+            gameDrawOffsetX = (drawAreaWidth / gameDrawScale - (maxX - minX)) / 2 - minX + gameBoardRect.Left / gameDrawScale;
+            gameDrawOffsetY = (drawAreaHeight / gameDrawScale - (maxY - minY)) / 2 - minY + gameBoardRect.Top / gameDrawScale;
 
             canvas.DrawCircle(0, 0, canvas.ClipBounds.Top + 10, new Paint
             {
