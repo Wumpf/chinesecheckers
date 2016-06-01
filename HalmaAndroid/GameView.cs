@@ -13,7 +13,7 @@ using Android.Widget;
 
 namespace HalmaAndroid
 {
-    class GameView : View
+    class GameView : View, GestureDetector.IOnGestureListener, ScaleGestureDetector.IOnScaleGestureListener
     {
         private GameActivity game;
 
@@ -28,14 +28,12 @@ namespace HalmaAndroid
         private const int playerInfoBarHeight = 150;
         private const int playerTextHeight = 80;
 
-        public delegate void FieldTouchedHandler(HexCoord hexcoord);
-        public event FieldTouchedHandler FieldTouched;
-
         private float gameDrawOffsetX;
         private float gameDrawOffsetY;
-        private float gameDrawScale;
+        internal float gameDrawScale { get; set; }
 
         private int winningPlayer = -1;
+
 
         public bool HasHighlighted
         {
@@ -75,11 +73,13 @@ namespace HalmaAndroid
             drawX = (gameX + gameDrawOffsetX) * gameDrawScale;
             drawY = (gameY + gameDrawOffsetY) * gameDrawScale;
         }
-
         public GameView(Context context, GameActivity game) : base(context)
         {
             this.SetPadding(0, 0, 0, 0);
             this.game = game;
+
+            scrollListener = new GestureDetector(context, this);
+            scaleDetector = new ScaleGestureDetector(context, this);
 
             typeface = Typeface.Create(Typeface.SansSerif, TypefaceStyle.Normal);
             gradient0 = BitmapFactory.DecodeResource(Context.Resources, Resource.Drawable.gradient0);
@@ -94,37 +94,6 @@ namespace HalmaAndroid
             paintPlayerText.SetTypeface(typeface);
         }
 
-        public override bool OnTouchEvent(MotionEvent e)
-        {
-            if (FieldTouched != null &&
-                (e.Action == MotionEventActions.Down || e.ButtonState == MotionEventButtonState.Primary))
-            {
-                float pointerViewX = e.GetX() + visibleRect.Left;
-                float pointerViewY = e.GetY() + visibleRect.Top;
-                float pointerCoordGameX, pointerCoordGameY;
-                DrawToGameSpace(pointerViewX, pointerViewY, out pointerCoordGameX, out pointerCoordGameY);
-
-                foreach (var field in game.GameBoard.GetFields())
-                {
-                    float fieldX, fieldY;
-                    field.Key.ToCartesian(out fieldX, out fieldY);
-
-                    float dx = fieldX - pointerCoordGameX;
-                    float dy = fieldY - pointerCoordGameY;
-                    float distanceSq = dx * dx + dy * dy;
-
-                    // Assume you can only press a single field.
-                    if (distanceSq < highlightRadius * highlightRadius)
-                    {
-                        FieldTouched(field.Key);
-                        break;
-                    }
-                }
-            }
-
-            return base.OnTouchEvent(e);
-        }
-
         protected override void OnSizeChanged(int w, int h, int oldw, int oldh)
         {
             base.OnSizeChanged(w, h, oldw, oldh);
@@ -133,6 +102,42 @@ namespace HalmaAndroid
             gameBoardRect.Bottom = visibleRect.Bottom;
             gameBoardRect.Left = visibleRect.Left;
             gameBoardRect.Right = visibleRect.Right;
+
+            ResetBoardScale(game.GameBoard.GetFields());
+        }
+
+        private void ResetBoardScale(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields)
+        {
+            // Gather points in cartesian coordinates.
+            // All spatial properties here might be precomputed
+            float minX = int.MaxValue;
+            float minY = int.MaxValue;
+            float maxX = int.MinValue;
+            float maxY = int.MinValue;
+            foreach (KeyValuePair<HexCoord, GameBoard.Field> field in fields)
+            {
+                if (field.Value.Type == GameBoard.FieldType.Invalid)
+                    continue;
+
+                float x, y;
+                field.Key.ToCartesian(out x, out y);
+                System.Drawing.PointF point = new System.Drawing.PointF(x, y);
+
+                minX = System.Math.Min(minX, x);
+                maxX = System.Math.Max(maxX, x);
+                minY = System.Math.Min(minY, y);
+                maxY = System.Math.Max(maxY, y);
+            }
+            float extentX = maxX - minX;
+            float extentY = maxY - minY;
+
+            // Transform to fit canvas' clipping space. It is important not to use canvas.Width/Height directly, since the system's buttom bar bar clips!
+            int drawAreaWidth = gameBoardRect.Width();
+            int drawAreaHeight = gameBoardRect.Height();
+            gameDrawScale = System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / extentX,
+                                          (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / extentY);
+            gameDrawOffsetX = (drawAreaWidth / gameDrawScale - (maxX - minX)) / 2 - minX + gameBoardRect.Left / gameDrawScale;
+            gameDrawOffsetY = (drawAreaHeight / gameDrawScale - (maxY - minY)) / 2 - minY + gameBoardRect.Top / gameDrawScale;
         }
 
         protected override void OnDraw(Canvas canvas)
@@ -164,6 +169,9 @@ namespace HalmaAndroid
 
                 visibleRect.Dispose();
                 gameBoardRect.Dispose();
+
+                scrollListener.Dispose();
+                scaleDetector.Dispose();
             }
         }
 
@@ -216,39 +224,6 @@ namespace HalmaAndroid
 
         private void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields, Canvas canvas)
         {
-            // Gather points in cartesian coordinates.
-            // All spatial properties here might be precomputed
-            float minX = int.MaxValue;
-            float minY = int.MaxValue;
-            float maxX = int.MinValue;
-            float maxY = int.MinValue;
-            var lastDrawnFields = new List<KeyValuePair<System.Drawing.PointF, GameBoard.Field>>();
-            foreach (KeyValuePair<HexCoord, GameBoard.Field> field in fields)
-            {
-                if (field.Value.Type == GameBoard.FieldType.Invalid)
-                    continue;
-
-                float x, y;
-                field.Key.ToCartesian(out x, out y);
-                System.Drawing.PointF point = new System.Drawing.PointF(x, y);
-
-                minX = System.Math.Min(minX, x);
-                maxX = System.Math.Max(maxX, x);
-                minY = System.Math.Min(minY, y);
-                maxY = System.Math.Max(maxY, y);
-
-                lastDrawnFields.Add(new KeyValuePair<System.Drawing.PointF, GameBoard.Field>(point, field.Value));
-            }
-            float extentX = maxX - minX;
-            float extentY = maxY - minY;
-
-            // Transform to fit canvas' clipping space. It is important not to use canvas.Width/Height directly, since the system's buttom bar bar clips!
-            int drawAreaWidth = gameBoardRect.Width();
-            int drawAreaHeight = gameBoardRect.Height();
-            gameDrawScale = System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / extentX,
-                                          (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / extentY);
-            gameDrawOffsetX = (drawAreaWidth / gameDrawScale - (maxX - minX)) / 2 - minX + gameBoardRect.Left / gameDrawScale;
-            gameDrawOffsetY = (drawAreaHeight / gameDrawScale - (maxY - minY)) / 2 - minY + gameBoardRect.Top / gameDrawScale;
 
             canvas.DrawCircle(0, 0, canvas.ClipBounds.Top + 10, new Paint
             {
@@ -290,19 +265,117 @@ namespace HalmaAndroid
             fieldPaint.SetStyle(Paint.Style.Fill);
 
 
-            foreach (var field in lastDrawnFields)
+            foreach (var field in fields)
             {
                 int player = field.Value.PlayerPiece; //GameBoard.GetPlayerGoal(field.Value.Type);
+
+                float x, y;
+                field.Key.ToCartesian(out x, out y);
+
                 if (player >= 0)
                 {
                     playerPaint.Color = playerColors[player];
-                    canvas.DrawCircle(field.Key.X, field.Key.Y, playerRadius, playerPaint);
+                    canvas.DrawCircle(x, y, playerRadius, playerPaint);
                 }
                 else
                 {
-                    canvas.DrawCircle(field.Key.X, field.Key.Y, fieldRadius, fieldPaint);
+                    canvas.DrawCircle(x, y, fieldRadius, fieldPaint);
                 }
             }
         }
+
+        #region Input
+
+        private GestureDetector scrollListener;
+        private ScaleGestureDetector scaleDetector;
+
+        public delegate void FieldTouchedHandler(HexCoord hexcoord);
+        public event FieldTouchedHandler FieldTouched;
+
+        public override bool OnTouchEvent(MotionEvent e)
+        {
+            scrollListener.OnTouchEvent(e);
+            scaleDetector.OnTouchEvent(e);
+
+            return true;
+        }
+
+        public bool OnScale(ScaleGestureDetector detector)
+        {
+            gameDrawScale *= detector.ScaleFactor;
+            //GameDrawScale = System.Math.Max(minScale, Math.Min(view.GameDrawScale, maxScale));
+            Invalidate();
+
+            return true;
+        }
+
+        public bool OnScaleBegin(ScaleGestureDetector detector)
+        {
+            return true;
+        }
+
+        public void OnScaleEnd(ScaleGestureDetector detector)
+        {
+        }
+
+
+        public bool OnDown(MotionEvent e)
+        {
+            if (FieldTouched != null)
+            {
+                float pointerViewX = e.GetX() + visibleRect.Left;
+                float pointerViewY = e.GetY() + visibleRect.Top;
+                float pointerCoordGameX, pointerCoordGameY;
+                DrawToGameSpace(pointerViewX, pointerViewY, out pointerCoordGameX, out pointerCoordGameY);
+
+                foreach (var field in game.GameBoard.GetFields())
+                {
+                    float fieldX, fieldY;
+                    field.Key.ToCartesian(out fieldX, out fieldY);
+
+                    float dx = fieldX - pointerCoordGameX;
+                    float dy = fieldY - pointerCoordGameY;
+                    float distanceSq = dx * dx + dy * dy;
+
+                    // Assume you can only press a single field.
+                    if (distanceSq < highlightRadius * highlightRadius)
+                    {
+                        FieldTouched(field.Key);
+                        break;
+                    }
+                }
+            }
+
+            // Need to return false, otherwise the event is consumed and we no longer get scroll or scale!
+            return false;
+        }
+
+        public bool OnFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+        {
+            return true;
+        }
+
+        public void OnLongPress(MotionEvent e)
+        {
+        }
+
+        public bool OnScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+        {
+            gameDrawOffsetX -= distanceX / gameDrawScale;
+            gameDrawOffsetY -= distanceY / gameDrawScale;
+            Invalidate();
+            return true;
+        }
+
+        public void OnShowPress(MotionEvent e)
+        {
+        }
+
+        public bool OnSingleTapUp(MotionEvent e)
+        {
+            return true;
+        }
+
+        #endregion
     }
 }
