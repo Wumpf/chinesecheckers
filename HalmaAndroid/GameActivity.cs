@@ -60,28 +60,18 @@ namespace HalmaAndroid
         private void ExecuteTurn(Turn turn)
         {
             GameBoard.ExecuteTurn(turn);
+            players[CurrentPlayer].OnTurnEnded();
 
-            if (CheckCurrentPlayerHasWon())
+            if (GameBoard.HasPlayerWon(CurrentPlayer))
             {
-                // todo: Winning.
+                gameView.ShowWinningScreen(CurrentPlayer);
             }
             else
             {
-                players[CurrentPlayer].OnTurnEnded();
                 startTurn((CurrentPlayer + 1) % (uint)players.Length);
             }
 
             gameView.Invalidate();
-        }
-
-        /// <summary>
-        /// Check weather the current player has won.
-        /// </summary>
-        /// <returns>True if the current player has won.</returns>
-        private bool CheckCurrentPlayerHasWon()
-        {
-            // todo
-            return false;
         }
     }
 }

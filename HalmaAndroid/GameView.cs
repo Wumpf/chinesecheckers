@@ -20,10 +20,13 @@ namespace HalmaAndroid
         private Typeface typeface;
         private Bitmap gradient0;
 
+        private Paint paintNoAA;
+        private Paint paintPlayerText;
+
         private Rect visibleRect = new Rect();
         private Rect gameBoardRect = new Rect();
-        private int playerInfoBarHeight = 150;
-        private int playerTextHeight = 80;
+        private const int playerInfoBarHeight = 150;
+        private const int playerTextHeight = 80;
 
         public delegate void FieldTouchedHandler(HexCoord hexcoord);
         public event FieldTouchedHandler FieldTouched;
@@ -31,6 +34,8 @@ namespace HalmaAndroid
         private float gameDrawOffsetX;
         private float gameDrawOffsetY;
         private float gameDrawScale;
+
+        private int winningPlayer = -1;
 
         public bool HasHighlighted
         {
@@ -78,6 +83,15 @@ namespace HalmaAndroid
 
             typeface = Typeface.Create(Typeface.SansSerif, TypefaceStyle.Normal);
             gradient0 = BitmapFactory.DecodeResource(Context.Resources, Resource.Drawable.gradient0);
+
+            // paints
+            paintNoAA = new Paint();
+            paintPlayerText = new Paint
+            {
+                AntiAlias = true,
+                TextSize = playerTextHeight
+            };
+            paintPlayerText.SetTypeface(typeface);
         }
 
         public override bool OnTouchEvent(MotionEvent e)
@@ -127,15 +141,35 @@ namespace HalmaAndroid
 
             // Clear background.
             canvas.Matrix = new Matrix();
-            Paint background = new Paint
-            {
-                Color = Color.White
-            };
-            canvas.DrawPaint(background);
+
+            paintNoAA.Color = Color.White;
+            canvas.DrawPaint(paintNoAA);
 
             DrawFields(game.GameBoard.GetFields(), canvas);
             canvas.Matrix = new Matrix();
             DrawPlayerInfo(canvas);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if(disposing)
+            {
+                typeface.Dispose();
+                gradient0.Dispose();
+
+                paintNoAA.Dispose();
+                paintPlayerText.Dispose();
+
+                visibleRect.Dispose();
+                gameBoardRect.Dispose();
+            }
+        }
+
+        public void ShowWinningScreen(uint winningPlayer)
+        {
+            this.winningPlayer = (int)winningPlayer;
         }
 
         private static readonly Color[] playerColors = new Color[6]
@@ -152,27 +186,32 @@ namespace HalmaAndroid
 
         private void DrawPlayerInfo(Canvas canvas)
         {
-            Paint textPaint = new Paint
+            Paint backgroundPaint = paintNoAA;
+
+            string text;
+            if (winningPlayer >= 0)
             {
-                AntiAlias = true,
-                Color = playerColors[game.CurrentPlayer],
-                TextSize = playerTextHeight
-            };
-            textPaint.SetTypeface(typeface);
+                text = "Player " + (winningPlayer + 1).ToString() + " Won!";
+                paintPlayerText.Color = Color.White;
+                backgroundPaint.Color = playerColors[winningPlayer];
+            }
+            else
+            {
+                text = "Player " + (game.CurrentPlayer + 1).ToString();
+                paintPlayerText.Color = playerColors[game.CurrentPlayer];
+                backgroundPaint.Color = Color.White;
+            }
 
-            string text = "Player " + (game.CurrentPlayer + 1).ToString();
+            canvas.DrawRect(visibleRect.Left, visibleRect.Top, visibleRect.Right, visibleRect.Top + playerInfoBarHeight, backgroundPaint);
 
-            var metrics = textPaint.GetFontMetrics();
-            float x = visibleRect.Left + (visibleRect.Width() - textPaint.MeasureText(text)) / 2.0f;
+            var metrics = paintPlayerText.GetFontMetrics();
+            float x = visibleRect.Left + (visibleRect.Width() - paintPlayerText.MeasureText(text)) / 2.0f;
             float y = visibleRect.Top + (playerInfoBarHeight + playerTextHeight) / 2.0f;
-            canvas.DrawText(text, x, y, textPaint);
+            canvas.DrawText(text, x, y, paintPlayerText);
 
-            Paint shadowPaint = new Paint
-            {
-                Color = Color.Argb(70, 70, 70, 70)
-            };
-
-            canvas.DrawBitmap(gradient0, new Rect(0, 0, gradient0.Width, gradient0.Height), new Rect(visibleRect.Left, gameBoardRect.Top, visibleRect.Right, gameBoardRect.Top + 24), shadowPaint);
+            paintNoAA.Color = Color.Argb(70, 70, 70, 70);
+            canvas.DrawBitmap(gradient0, new Rect(0, 0, gradient0.Width, gradient0.Height), 
+                                         new Rect(visibleRect.Left, gameBoardRect.Top, visibleRect.Right, gameBoardRect.Top + 24), paintNoAA);
         }
 
         private void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields, Canvas canvas)

@@ -153,6 +153,27 @@ namespace HalmaAndroid
         }
 
         /// <summary>
+        /// Check weather a given player has won.
+        /// </summary>
+        /// <returns>True if the current player has won.</returns>
+        public bool HasPlayerWon(uint currentPlayer)
+        {
+            foreach (Field field in fields.Values)
+            {
+                if (field.PlayerPiece == currentPlayer)
+                {
+                    int playerGoal = GetPlayerGoal(field.Type);
+                    if (playerGoal < 0 || playerGoal != currentPlayer)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Executes a given turn. Attention: Will execute even if the turn is illegal or meaningless.1
         /// </summary>
         public void ExecuteTurn(Turn turn)
