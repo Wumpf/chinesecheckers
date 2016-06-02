@@ -23,14 +23,28 @@ namespace HalmaAndroid
         private Paint paintNoAA;
         private Paint paintPlayerText;
 
+        /// <summary>
+        /// The entire draw area.
+        /// </summary>
         private Rect visibleRect = new Rect();
+        /// <summary>
+        /// Area for drawing the gameboard.
+        /// </summary>
         private Rect gameBoardRect = new Rect();
         private const int playerInfoBarHeight = 150;
         private const int playerTextHeight = 80;
 
+        /// <summary>
+        /// Translation offsets for the canvas when drawing with game coordinates.
+        /// </summary>
         private float gameDrawOffsetX;
         private float gameDrawOffsetY;
-        internal float gameDrawScale { get; set; }
+        /// <summary>
+        /// Scale factor for the canvas when drawing with game coordinates.
+        /// </summary>
+        private float gameDrawScale;
+        private float minGameDrawScale;
+
 
         private int winningPlayer = -1;
 
@@ -136,6 +150,7 @@ namespace HalmaAndroid
             int drawAreaHeight = gameBoardRect.Height();
             gameDrawScale = System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / extentX,
                                           (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / extentY);
+            minGameDrawScale = gameDrawScale;
             gameDrawOffsetX = (drawAreaWidth / gameDrawScale - (maxX - minX)) / 2 - minX + gameBoardRect.Left / gameDrawScale;
             gameDrawOffsetY = (drawAreaHeight / gameDrawScale - (maxY - minY)) / 2 - minY + gameBoardRect.Top / gameDrawScale;
         }
@@ -302,8 +317,23 @@ namespace HalmaAndroid
 
         public bool OnScale(ScaleGestureDetector detector)
         {
-            gameDrawScale *= detector.ScaleFactor;
-            //GameDrawScale = System.Math.Max(minScale, Math.Min(view.GameDrawScale, maxScale));
+            float scaleFactor = detector.ScaleFactor;
+            float newGameScale = gameDrawScale * scaleFactor;
+            newGameScale = System.Math.Max(newGameScale, minGameDrawScale);
+            float maxGameDrawScale = System.Math.Min(Width, Height) / (playerRadius * 10.0f);
+            newGameScale = System.Math.Min(newGameScale, maxGameDrawScale);
+            scaleFactor = newGameScale / gameDrawScale;
+
+            // Scaling means also that we need to move towards the focus point.
+            float focusDiffX = detector.FocusX - gameDrawOffsetX / gameDrawScale;
+            float focusDiffY = detector.FocusY - gameDrawOffsetY / gameDrawScale;
+
+            gameDrawOffsetX -= (focusDiffX * scaleFactor - focusDiffX) / gameDrawScale;
+            gameDrawOffsetY -= (focusDiffY * scaleFactor - focusDiffY) / gameDrawScale;
+
+            // Apply actual scale.
+            gameDrawScale = newGameScale;
+
             Invalidate();
 
             return true;
