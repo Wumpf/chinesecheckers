@@ -10,10 +10,25 @@ namespace HalmaAndroid
         public enum Configuration
         {
             /// <summary>
-            /// Classic chineese checkers with 2 players.
+            /// Classic chinese checkers with 2 players.
             /// </summary>
             STAR_2,
+
+            /// <summary>
+            /// Classic chinese checkers with 3 players.
+            /// </summary>
+            STAR_3,
+
+            /// <summary>
+            /// Classic chinese checkers with 4 players. Two players paired
+            /// </summary>
+            STAR_4,
+            /// <summary>
+            /// Classic chinese checkers with all 6 players.
+            /// </summary>
+            STAR_6,
         }
+
         /// <summary>
         /// Map configuration. May be used for specific/optimized drawing and AI.
         /// </summary>
@@ -27,6 +42,12 @@ namespace HalmaAndroid
                 {
                     case Configuration.STAR_2:
                         return 2;
+                    case Configuration.STAR_3:
+                        return 3;
+                    case Configuration.STAR_4:
+                        return 4;
+                    case Configuration.STAR_6:
+                        return 6;
                     default:
                         throw new NotImplementedException();
                 }
@@ -56,6 +77,11 @@ namespace HalmaAndroid
             /// Type of the field.
             /// </summary>
             public FieldType Type;
+
+            public int GetPlayerGoal()
+            {
+                return GameBoard.GetPlayerGoal(Type);
+            }
         }
 
         /// <summary>
@@ -72,9 +98,9 @@ namespace HalmaAndroid
 
         public GameBoard()
         {
-            Config = Configuration.STAR_2;
+            Config = Configuration.STAR_3;
 
-            // Config
+            // Config determines fields per direction.
             int coreSize = 4;
             Field[] dirField;
             bool largePikes = true;
@@ -84,32 +110,63 @@ namespace HalmaAndroid
                     dirField = new Field[6]
                     {
                         new Field {Type = FieldType.Normal, PlayerPiece = -1},
-                        new Field {Type = FieldType.PlayerGoal1, PlayerPiece = 0},
+                        new Field {Type = FieldType.PlayerGoal1, PlayerPiece = 0}, // Top
                         new Field {Type = FieldType.Normal, PlayerPiece = -1},
                         new Field {Type = FieldType.Normal, PlayerPiece = -1},
-                        new Field {Type = FieldType.PlayerGoal0, PlayerPiece = 1},
+                        new Field {Type = FieldType.PlayerGoal0, PlayerPiece = 1}, // Bottom
                         new Field {Type = FieldType.Normal, PlayerPiece = -1}
                     };
                     break;
 
-                // all players
-                //const int coreSize = 4;
-                //FieldType[] dirFieldTypeType = new FieldType[6] {FieldType.PlayerGoal2, FieldType.PlayerGoal3, FieldType.PlayerGoal4, FieldType.PlayerGoal5, FieldType.PlayerGoal0, FieldType.PlayerGoal1 };
+                case Configuration.STAR_3:
+                    dirField = new Field[6]
+                    {
+                        new Field {Type = FieldType.Normal, PlayerPiece = 2},
+                        new Field {Type = FieldType.PlayerGoal0, PlayerPiece = -1},
+                        new Field {Type = FieldType.Normal, PlayerPiece = 1},
+                        new Field {Type = FieldType.PlayerGoal2, PlayerPiece = -1},
+                        new Field {Type = FieldType.Normal, PlayerPiece = 0},
+                        new Field {Type = FieldType.PlayerGoal1, PlayerPiece = -1}
+                    };
+                    break;
+
+                case Configuration.STAR_4:
+                    dirField = new Field[6]
+                    {
+                        new Field {Type = FieldType.Normal, PlayerPiece = -1},
+                        new Field {Type = FieldType.PlayerGoal0, PlayerPiece = 2},
+                        new Field {Type = FieldType.PlayerGoal1, PlayerPiece = 3},
+                        new Field {Type = FieldType.Normal, PlayerPiece = -1},
+                        new Field {Type = FieldType.PlayerGoal2, PlayerPiece = 0},
+                        new Field {Type = FieldType.PlayerGoal3, PlayerPiece = 1}
+                    };
+                    break;
+
+                case Configuration.STAR_6:
+                    dirField = new Field[6]
+                    {
+                        new Field {Type = FieldType.PlayerGoal5, PlayerPiece = 1},
+                        new Field {Type = FieldType.PlayerGoal0, PlayerPiece = 2},
+                        new Field {Type = FieldType.PlayerGoal1, PlayerPiece = 3},
+                        new Field {Type = FieldType.PlayerGoal2, PlayerPiece = 4},
+                        new Field {Type = FieldType.PlayerGoal3, PlayerPiece = 5},
+                        new Field {Type = FieldType.PlayerGoal4, PlayerPiece = 0}
+                    };
+                    break;
 
                 default:
                     throw new NotImplementedException();
             }
 
-            // Basic star config.
-            // Empty core.
-            for (int r=-coreSize; r<= coreSize; ++r)
+            // Mostly empty hexagon core.
+            for (int r = -coreSize; r <= coreSize; ++r)
             {
                 int endQ = coreSize - Math.Max(r, 0);
                 int startQ = -coreSize - Math.Min(r, 0);
                 for (int q = startQ; q <= endQ; ++q)
                 {
                     var coord = new HexCoord(q, r);
-                    var field = new Field {Type = FieldType.Normal, PlayerPiece = -1};
+                    var field = new Field { Type = FieldType.Normal, PlayerPiece = -1 };
 
                     // Extra players in the core vary.
                     // (Code not optimal, but readability is more important for this piece of init code!)
@@ -119,9 +176,41 @@ namespace HalmaAndroid
                         {
                             case Configuration.STAR_2:
                                 if (coord.Z == -coreSize)
-                                    field = dirField[(int) HexCoord.Direction.NorthEast];
+                                    field = dirField[(int)HexCoord.Direction.NorthEast];
                                 else if (coord.Z == coreSize)
-                                    field = dirField[(int) HexCoord.Direction.SouthWest];
+                                    field = dirField[(int)HexCoord.Direction.SouthWest];
+                                break;
+
+                            case Configuration.STAR_3:
+                                if (coord.Z == coreSize)
+                                    field.PlayerPiece = dirField[(int)HexCoord.Direction.SouthWest].PlayerPiece;
+                                if (coord.Z == -coreSize)
+                                    field.Type = dirField[(int)HexCoord.Direction.NorthEast].Type;
+                                if (coord.X == coreSize)
+                                    field.PlayerPiece = dirField[(int)HexCoord.Direction.East].PlayerPiece;
+                                if (coord.X == -coreSize)
+                                    field.Type = dirField[(int)HexCoord.Direction.West].Type;
+                                if (coord.Y == coreSize)
+                                    field.PlayerPiece = dirField[(int)HexCoord.Direction.NorthWest].PlayerPiece;
+                                if (coord.Y == -coreSize)
+                                    field.Type = dirField[(int)HexCoord.Direction.SouthEast].Type;
+                                break;
+
+                            case Configuration.STAR_4:
+                                if (coord.Y != -coord.Z)
+                                {
+                                    if (coord.Z == -coreSize)
+                                        field = dirField[(int)HexCoord.Direction.NorthEast];
+                                    else if (coord.Z == coreSize)
+                                        field = dirField[(int)HexCoord.Direction.SouthWest];
+                                    else if (coord.Y == -coreSize)
+                                        field = dirField[(int)HexCoord.Direction.SouthEast];
+                                    else if (coord.Y == coreSize)
+                                        field = dirField[(int)HexCoord.Direction.NorthWest];
+                                }
+                                break;
+
+                            case Configuration.STAR_6:
                                 break;
 
                             default:
@@ -136,9 +225,9 @@ namespace HalmaAndroid
             for (int dir = 0; dir < 6; ++dir)
             {
                 HexCoord dirA = HexCoord.Directions[dir];
-                HexCoord dirB = HexCoord.Directions[(dir+2) % 6];
+                HexCoord dirB = HexCoord.Directions[(dir + 2) % 6];
 
-                HexCoord current = dirA*(coreSize+1);
+                HexCoord current = dirA * (coreSize + 1);
                 for (int a = 0; a <= coreSize; ++a)
                 {
                     HexCoord backup = current;
@@ -150,6 +239,25 @@ namespace HalmaAndroid
                     current = backup + dirA + dirB;
                 }
             }
+
+            // Sanity check for board setup.
+#if DEBUG
+            int[] playerPieceCount = new int[6];
+            int[] playerGoalCount = new int[6];
+            foreach (Field f in fields.Values)
+            {
+                System.Diagnostics.Debug.Assert(f.PlayerPiece < 6);
+
+                if (f.PlayerPiece >= 0)
+                    ++playerPieceCount[f.PlayerPiece];
+                if (f.GetPlayerGoal() >= 0)
+                    ++playerGoalCount[f.GetPlayerGoal()];
+            }
+            for(int i=0; i<6; ++i)
+            {
+                System.Diagnostics.Debug.Assert(playerGoalCount[i] == playerPieceCount[i]);
+            }
+#endif
         }
 
         /// <summary>

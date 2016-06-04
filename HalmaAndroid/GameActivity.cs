@@ -29,7 +29,10 @@ namespace HalmaAndroid
             SetContentView(gameView);
 
             // Setup players.
-            players = new Player[] { new HumanPlayer(0, gameView), new HumanPlayer(1, gameView) };
+            // For now only pescy humans.
+            players = new Player[GameBoard.NumPlayers];
+            for (int i = 0; i < players.Length; ++i)
+                players[i] = new HumanPlayer((uint)i, gameView);
             startTurn(0);
         }
 
