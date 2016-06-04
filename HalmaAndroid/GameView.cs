@@ -232,6 +232,13 @@ namespace HalmaAndroid
             float y = visibleRect.Top + (playerInfoBarHeight + playerTextHeight) / 2.0f;
             canvas.DrawText(text, x, y, paintPlayerText);
 
+            // Debug!
+            #if DEBUG
+               highlightedPos.ToCartesian(out x, out y);
+               GameToDrawSpace(x, y, out x, out y);
+               canvas.DrawText(string.Format("{0} {1} {2}", highlightedPos.X, highlightedPos.Y, highlightedPos.Z), 0, 200, paintPlayerText);
+            #endif
+
             paintNoAA.Color = Color.Argb(70, 70, 70, 70);
             canvas.DrawBitmap(gradient0, new Rect(0, 0, gradient0.Width, gradient0.Height), 
                                          new Rect(visibleRect.Left, gameBoardRect.Top, visibleRect.Right, gameBoardRect.Top + 24), paintNoAA);
@@ -269,7 +276,6 @@ namespace HalmaAndroid
             Paint fieldPaint = new Paint
             {
                 AntiAlias = true,
-                Color = Color.Black,
             };
             fieldPaint.SetStyle(Paint.Style.Fill);
 
@@ -282,7 +288,7 @@ namespace HalmaAndroid
 
             foreach (var field in fields)
             {
-                int player = field.Value.PlayerPiece; //GameBoard.GetPlayerGoal(field.Value.Type);
+                int player = field.Value.PlayerPiece;
 
                 float x, y;
                 field.Key.ToCartesian(out x, out y);
@@ -294,6 +300,11 @@ namespace HalmaAndroid
                 }
                 else
                 {
+                    int playerGoal = GameBoard.GetPlayerGoal(field.Value.Type);
+                    if (playerGoal >= 0)
+                        fieldPaint.Color = playerColors[playerGoal];
+                    else
+                        fieldPaint.Color = Color.Black;
                     canvas.DrawCircle(x, y, fieldRadius, fieldPaint);
                 }
             }
