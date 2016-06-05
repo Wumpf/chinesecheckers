@@ -14,21 +14,23 @@ namespace HalmaAndroid
 {
     class HumanPlayer : Player
     {
+        private readonly GameInput gameInput;
         private readonly GameView gameView;
         private GameBoard gameBoard;
 
         private HexCoord movingPiecePos;
         private bool pieceSelected = false;
 
-        public HumanPlayer(uint playerNumber, GameView view) : base(playerNumber)
+        public HumanPlayer(uint playerNumber, GameInput input, GameView view) : base(playerNumber)
         {
+            gameInput = input;
             gameView = view;
         }
 
         public override void OnTurnStarted(GameBoard currentBoard)
         {
             gameBoard = currentBoard;
-            gameView.FieldTouched += OnFieldTouched;
+            gameInput.FieldTouched += OnFieldTouched;
         }
 
         private void OnFieldTouched(HexCoord hexcoord)
@@ -58,7 +60,7 @@ namespace HalmaAndroid
         public override void OnTurnEnded()
         {
             gameBoard = null;
-            gameView.FieldTouched -= OnFieldTouched;
+            gameInput.FieldTouched -= OnFieldTouched;
             gameView.HasHighlighted = false;
             pieceSelected = false;
         }

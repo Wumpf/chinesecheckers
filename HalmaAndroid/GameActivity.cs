@@ -13,7 +13,8 @@ namespace HalmaAndroid
     public class GameActivity : Activity
     {
         internal GameBoard GameBoard { get; private set; }
-        private GameView gameView;
+        private GameView view;
+        private GameInput input;
         private Player[] players;
         public uint CurrentPlayer { get; private set; } = 0;
 
@@ -22,21 +23,37 @@ namespace HalmaAndroid
             base.OnCreate(bundle);
 
             GameBoard = new GameBoard();
-            gameView = new GameView(this, this);
+            view = new GameView(this, this);
+            input = new GameInput(view);
             RequestWindowFeature(WindowFeatures.NoTitle);
 
             // Set our view from the "main" layout resource
-            SetContentView(gameView);
+            SetContentView(view);
 
             // Setup players.
             // For now only pescy humans.
             players = new Player[GameBoard.NumPlayers];
             for (int i = 0; i < players.Length; ++i)
-                players[i] = new HumanPlayer((uint)i, gameView);
-            startTurn(0);
+                players[i] = new HumanPlayer((uint)i, input, view);
+            StartTurn(0);
         }
 
-        private void startTurn(uint newCurrentPlayer)
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                input.Dispose();
+                view.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        public override bool OnTouchEvent(MotionEvent e)
+        {
+            return input.OnTouchEvent(e);
+        }
+
+        private void StartTurn(uint newCurrentPlayer)
         {
             CurrentPlayer = newCurrentPlayer;
             players[CurrentPlayer].TurnReady += OnPlayerTurnReady;
@@ -58,7 +75,7 @@ namespace HalmaAndroid
                 // todo: Unallowed turn.
             }
 
-            gameView.HasHighlighted = false;
+            view.HasHighlighted = false;
         }
 
         private void ExecuteTurn(Turn turn)
@@ -68,14 +85,14 @@ namespace HalmaAndroid
 
             if (GameBoard.HasPlayerWon(CurrentPlayer))
             {
-                gameView.ShowWinningScreen(CurrentPlayer);
+                view.ShowWinningScreen(CurrentPlayer);
             }
             else
             {
-                startTurn((CurrentPlayer + 1) % (uint)players.Length);
+                StartTurn((CurrentPlayer + 1) % (uint)players.Length);
             }
 
-            gameView.Invalidate();
+            view.Invalidate();
         }
     }
 }

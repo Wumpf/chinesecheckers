@@ -67,6 +67,12 @@ namespace HalmaAndroid
             return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
         }
 
+        public override bool Equals(object obj)
+        {
+            HexCoord? b = obj as HexCoord?;
+            return b.HasValue ? b.Value == this : false;
+        }
+
         public void ToCartesian(out float x, out float y)
         {
             x = (float)System.Math.Sqrt(3) * (this.X + this.Z/2.0f);

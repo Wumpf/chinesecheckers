@@ -103,7 +103,6 @@ namespace HalmaAndroid
             // Config determines fields per direction.
             int coreSize = 4;
             Field[] dirField;
-            bool largePikes = true;
             switch (Config)
             {
                 case Configuration.STAR_2:
