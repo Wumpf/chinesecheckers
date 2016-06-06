@@ -21,7 +21,9 @@ namespace HalmaAndroid
         private Bitmap gradient0;
 
         private Paint paintNoAA;
+        private Paint paintFillAA;
         private Paint paintPlayerText;
+        private Paint paintLine;
 
         /// <summary>
         /// The entire draw area.
@@ -96,12 +98,23 @@ namespace HalmaAndroid
 
             // paints
             paintNoAA = new Paint();
+            paintFillAA = new Paint
+            {
+                AntiAlias = true,
+            };
+            paintFillAA.SetStyle(Paint.Style.Fill);
             paintPlayerText = new Paint
             {
                 AntiAlias = true,
                 TextSize = playerTextHeight
             };
             paintPlayerText.SetTypeface(typeface);
+            paintLine = new Paint
+            {
+                AntiAlias = true,
+                StrokeWidth = fieldRadius,
+                Color = Color.LightGray
+            };
         }
 
         protected override void Dispose(bool disposing)
@@ -114,7 +127,9 @@ namespace HalmaAndroid
                 gradient0.Dispose();
 
                 paintNoAA.Dispose();
+                paintFillAA.Dispose();
                 paintPlayerText.Dispose();
+                paintLine.Dispose();
 
                 visibleRect.Dispose();
                 gameBoardRect.Dispose();
@@ -222,7 +237,11 @@ namespace HalmaAndroid
             paintNoAA.Color = Color.White;
             canvas.DrawPaint(paintNoAA);
 
+            canvas.Scale(GameDrawScale, GameDrawScale);
+            canvas.Translate(GameDrawOffsetX, GameDrawOffsetY);
+            DrawBackground(game.GameBoard.GetFields().Select(x => x.Key), game.GameBoard.Config, canvas);
             DrawFields(game.GameBoard.GetFields(), canvas);
+
             canvas.Matrix = new Matrix();
             DrawPlayerInfo(canvas);
         }
@@ -277,17 +296,57 @@ namespace HalmaAndroid
                                          new Rect(visibleRect.Left, gameBoardRect.Top, visibleRect.Right, gameBoardRect.Top + 24), paintNoAA);
         }
 
+        private void DrawBackground(IEnumerable<HexCoord> fieldPositions, GameBoard.Configuration boardConfig, Canvas canvas)
+        {
+            if (!boardConfig.IsStar())
+                return;
+
+            // There are three directions of lines, one for each axis.
+
+            // x-y lines.
+            for (int comp = 0; comp < 3; ++comp)
+            {
+                int nextComp = (comp + 1) % 3;
+                int calcComp = (comp + 2) % 3;
+
+                int min = fieldPositions.Min(x => x[comp]);
+                int max = fieldPositions.Max(x => x[comp]);
+                int[] xyLineMax = Enumerable.Repeat(int.MaxValue, max - min + 1).ToArray();
+                int[] xyLineMin = Enumerable.Repeat(int.MinValue, max - min + 1).ToArray();
+                foreach (HexCoord pos in fieldPositions)
+                {
+                    int index = pos[comp] - min;
+                    xyLineMin[index] = Math.Max(xyLineMin[index], pos[nextComp]);
+                    xyLineMax[index] = Math.Min(xyLineMax[index], pos[nextComp]);
+                }
+
+                for (int i = 0; i < xyLineMin.Length; ++i)
+                {
+                    int fixCoord = i + min;
+                    if (xyLineMin[i] == xyLineMax[i])
+                        continue;
+
+                    float startX, startY;
+                    HexCoord start = new HexCoord();
+                    start[comp] = fixCoord;
+                    start[nextComp] = xyLineMin[i];
+                    start[calcComp] = -fixCoord - xyLineMin[i];
+                    start.ToCartesian(out startX, out startY);
+
+                    float endX, endY;
+                    HexCoord end = new HexCoord();
+                    end[comp] = fixCoord;
+                    end[nextComp] = xyLineMax[i];
+                    end[calcComp] = -fixCoord - xyLineMax[i];
+                    end.ToCartesian(out endX, out endY);
+                    
+                    canvas.DrawLine(startX, startY, endX, endY, paintLine);
+                }
+            }
+        }
+
         private void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields, Canvas canvas)
         {
-            canvas.DrawCircle(0, 0, canvas.ClipBounds.Top + 10, new Paint
-            {
-                AntiAlias = true,
-                Color = Color.Black,
-            });
-
-            canvas.Scale(GameDrawScale, GameDrawScale);
-            canvas.Translate(GameDrawOffsetX, GameDrawOffsetY);
-
             // Draw highlight if any.
             if (hasHighlighted)
             {
@@ -305,19 +364,6 @@ namespace HalmaAndroid
             }
 
             // Draw points
-            Paint fieldPaint = new Paint
-            {
-                AntiAlias = true,
-            };
-            fieldPaint.SetStyle(Paint.Style.Fill);
-
-            Paint playerPaint = new Paint
-            {
-                AntiAlias = true,
-            };
-            fieldPaint.SetStyle(Paint.Style.Fill);
-
-
             foreach (var field in fields)
             {
                 int player = field.Value.PlayerPiece;
@@ -327,17 +373,17 @@ namespace HalmaAndroid
 
                 if (player >= 0)
                 {
-                    playerPaint.Color = playerColors[player];
-                    canvas.DrawCircle(x, y, playerRadius, playerPaint);
+                    paintFillAA.Color = playerColors[player];
+                    canvas.DrawCircle(x, y, playerRadius, paintFillAA);
                 }
                 else
                 {
-                    int playerGoal = GameBoard.GetPlayerGoal(field.Value.Type);
+                    int playerGoal = field.Value.Type.GetPlayerGoal();
                     if (playerGoal >= 0)
-                        fieldPaint.Color = playerColors[playerGoal];
+                        paintFillAA.Color = playerColors[playerGoal];
                     else
-                        fieldPaint.Color = Color.Black;
-                    canvas.DrawCircle(x, y, fieldRadius, fieldPaint);
+                        paintFillAA.Color = Color.Black;
+                    canvas.DrawCircle(x, y, fieldRadius, paintFillAA);
                 }
             }
         }

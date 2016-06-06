@@ -5,6 +5,24 @@ using System.Text;
 
 namespace HalmaAndroid
 {
+    static class GameBoardEnumExtensions
+    {
+        public static bool IsStar(this GameBoard.Configuration config)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Returns for which player the given FieldType is a goal.
+        /// </summary>
+        /// <param name="fieldType"></param>
+        /// <returns></returns>
+        public static int GetPlayerGoal(this GameBoard.FieldType fieldType)
+        {
+            return (int)fieldType - (int)GameBoard.FieldType.PlayerGoal0;
+        }
+    }
+
     class GameBoard
     {
         public enum Configuration
@@ -77,21 +95,6 @@ namespace HalmaAndroid
             /// Type of the field.
             /// </summary>
             public FieldType Type;
-
-            public int GetPlayerGoal()
-            {
-                return GameBoard.GetPlayerGoal(Type);
-            }
-        }
-
-        /// <summary>
-        /// Returns for which player the given FieldType is a goal.
-        /// </summary>
-        /// <param name="fieldType"></param>
-        /// <returns></returns>
-        public static int GetPlayerGoal(FieldType fieldType)
-        {
-            return (int) fieldType - (int) GameBoard.FieldType.PlayerGoal0;
         }
 
         private readonly Dictionary<HexCoord, Field> fields = new Dictionary<HexCoord, Field>();
@@ -249,8 +252,8 @@ namespace HalmaAndroid
 
                 if (f.PlayerPiece >= 0)
                     ++playerPieceCount[f.PlayerPiece];
-                if (f.GetPlayerGoal() >= 0)
-                    ++playerGoalCount[f.GetPlayerGoal()];
+                if (f.Type.GetPlayerGoal() >= 0)
+                    ++playerGoalCount[f.Type.GetPlayerGoal()];
             }
             for(int i=0; i<6; ++i)
             {
@@ -269,7 +272,7 @@ namespace HalmaAndroid
             {
                 if (field.PlayerPiece == currentPlayer)
                 {
-                    int playerGoal = GetPlayerGoal(field.Type);
+                    int playerGoal = field.Type.GetPlayerGoal();
                     if (playerGoal < 0 || playerGoal != currentPlayer)
                     {
                         return false;

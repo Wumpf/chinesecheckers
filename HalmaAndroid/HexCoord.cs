@@ -36,11 +36,60 @@ namespace HalmaAndroid
             this.Z = r;
         }
 
+        static public HexCoord FromXY(int x, int y)
+        {
+            return new HexCoord(x, y, -x -y);
+        }
+        static public HexCoord FromXZ(int x, int z)
+        {
+            return new HexCoord(x, -x - z, z);
+        }
+        static public HexCoord FromYZ(int y, int z)
+        {
+            return new HexCoord(-y - z, y, z);
+        }
+
         public int X { get; private set; }
         public int Y { get; private set; }
         public int Z { get; private set; }
 
-        #region Math
+        #region Math & Operators
+
+        public int this[int component]
+        {
+            get
+            {
+                switch(component)
+                {
+                    case 0:
+                        return X;
+                    case 1:
+                        return Y;
+                    case 2:
+                        return Z;
+                    default:
+                        throw new System.ArgumentException("Hexcoord component must be between 0 and 2");
+                }
+            }
+            set
+            {
+                switch (component)
+                {
+                    case 0:
+                        X = value;
+                        break;
+                    case 1:
+                        Y = value;
+                        break;
+                    case 2:
+                        Z = value;
+                        break;
+                    default:
+                        throw new System.ArgumentException("Hexcoord component must be between 0 and 2");
+                }
+            }
+        }
+
 
         public static HexCoord operator * (HexCoord coord, int factor)
         {
