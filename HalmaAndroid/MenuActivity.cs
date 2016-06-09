@@ -45,6 +45,7 @@ namespace HalmaAndroid
                     FindViewById<Spinner>(Resource.Id.playerType2),
                     FindViewById<Spinner>(Resource.Id.playerType3),
                     FindViewById<Spinner>(Resource.Id.playerType4),
+                    FindViewById<Spinner>(Resource.Id.playerType5),
                 };
                 playerTypeText = new TextView[]
                 {
@@ -53,6 +54,7 @@ namespace HalmaAndroid
                     FindViewById<TextView>(Resource.Id.playerType2text),
                     FindViewById<TextView>(Resource.Id.playerType3text),
                     FindViewById<TextView>(Resource.Id.playerType4text),
+                    FindViewById<TextView>(Resource.Id.playerType5text),
                 };
 
                 var playerTypeArrayAdapter = ArrayAdapter.CreateFromResource(this, Resource.Array.playerTypes, Android.Resource.Layout.SimpleSpinnerItem);

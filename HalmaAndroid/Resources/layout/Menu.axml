@@ -56,6 +56,12 @@
             android:layout_gravity="right" />
         <Spinner
             android:id="@+id/playerType4" />
+        <TextView
+            android:id="@+id/playerType5text"
+            android:text="@string/player5"
+            android:layout_gravity="right" />
+        <Spinner
+            android:id="@+id/playerType5" />
     </GridLayout>
     <Space
         android:layout_width="match_parent"

@@ -112,8 +112,14 @@ namespace HalmaAndroid
 			// aapt resource value: 0x7f060009
 			public const int playerType4text = 2131099657;
 			
+			// aapt resource value: 0x7f06000c
+			public const int playerType5 = 2131099660;
+			
 			// aapt resource value: 0x7f06000b
-			public const int startGameButton = 2131099659;
+			public const int playerType5text = 2131099659;
+			
+			// aapt resource value: 0x7f06000d
+			public const int startGameButton = 2131099661;
 			
 			static Id()
 			{
@@ -167,6 +173,9 @@ namespace HalmaAndroid
 			
 			// aapt resource value: 0x7f040008
 			public const int player4 = 2130968584;
+			
+			// aapt resource value: 0x7f040009
+			public const int player5 = 2130968585;
 			
 			// aapt resource value: 0x7f040002
 			public const int startGame = 2130968578;
