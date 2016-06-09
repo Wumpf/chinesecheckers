@@ -8,7 +8,9 @@ using Android.OS;
 
 namespace HalmaAndroid
 {
-    [Activity(Label = "HalmaAndroid", MainLauncher = true, Icon = "@drawable/icon", Theme = "@android:style/Theme.Light.NoTitleBar",
+    [Activity(Label = "HalmaAndroid", //MainLauncher = true, 
+                Icon = "@drawable/icon",
+                Theme = "@android:style/Theme.Light.NoTitleBar",
                 ConfigurationChanges = Android.Content.PM.ConfigChanges.Orientation | Android.Content.PM.ConfigChanges.ScreenSize)]
     public class GameActivity : Activity
     {
@@ -22,7 +24,14 @@ namespace HalmaAndroid
         {
             base.OnCreate(bundle);
 
-            GameBoard = new GameBoard();
+            // Decode bundle
+            GameBoard.Configuration config;
+            Type[] playerTypes;
+            MenuActivity.DecodeStartGameInfo(Intent, out config, out playerTypes);
+
+            // Setup main modules.
+            GameBoard = new GameBoard(config);
+            System.Diagnostics.Debug.Assert(playerTypes.Length == GameBoard.NumPlayers);
             view = new GameView(this, this);
             input = new GameInput(view);
             RequestWindowFeature(WindowFeatures.NoTitle);
@@ -30,11 +39,15 @@ namespace HalmaAndroid
             // Set our view from the "main" layout resource
             SetContentView(view);
 
-            // Setup players.
-            // For now only pescy humans.
-            players = new Player[GameBoard.NumPlayers];
-            for (int i = 0; i < players.Length; ++i)
-                players[i] = new HumanPlayer((uint)i, input, view);
+            // Setup players
+            players = new Player[playerTypes.Length];
+            for (int i = 0; i < playerTypes.Length; ++i)
+            {
+                if (playerTypes[i] == typeof(HumanPlayer))
+                    players[i] = new HumanPlayer((uint)i, input, view);
+                else
+                    throw new NotImplementedException();
+            }
             StartTurn(0);
         }
 

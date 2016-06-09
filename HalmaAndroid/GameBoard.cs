@@ -99,9 +99,9 @@ namespace HalmaAndroid
 
         private readonly Dictionary<HexCoord, Field> fields = new Dictionary<HexCoord, Field>();
 
-        public GameBoard()
+        public GameBoard(Configuration config)
         {
-            Config = Configuration.STAR_3;
+            Config = config;
 
             // Config determines fields per direction.
             int coreSize = 4;

@@ -113,7 +113,7 @@ namespace HalmaAndroid
             {
                 AntiAlias = true,
                 StrokeWidth = fieldRadius,
-                Color = Color.LightGray
+                Color = new Color(240, 240, 240)
             };
         }
 

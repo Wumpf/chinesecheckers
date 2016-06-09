@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ApplicationName">HalmaAndroid</string>
+  <string name="ApplicationName">HalmaAndroid</string>
+  <string name="menuActivityLabel">Halma - Menu</string>
+  <string name="startGame">Start Game</string>
+  <string name="numberOfPlayers">Number of Players</string>
+  <string name="player0">Player 1</string>
+  <string name="player1">Player 2</string>
+  <string name="player2">Player 3</string>
+  <string name="player3">Player 4</string>
+  <string name="player4">Player 5</string>
+  <string-array name="playerTypes">
+    <item>Human</item>
+  </string-array>
 </resources>
