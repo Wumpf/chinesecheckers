@@ -67,9 +67,10 @@
     <Compile Include="GameView.cs" />
     <Compile Include="HexCoord.cs" />
     <Compile Include="GameBoard.cs" />
-    <Compile Include="HumanPlayer.cs" />
+    <Compile Include="Player\PathExplorationAi.cs" />
+    <Compile Include="Player\HumanPlayer.cs" />
     <Compile Include="MenuActivity.cs" />
-    <Compile Include="Player.cs" />
+    <Compile Include="Player\Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Turn.cs" />

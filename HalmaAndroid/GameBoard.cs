@@ -172,7 +172,7 @@ namespace HalmaAndroid
 
                     // Extra players in the core vary.
                     // (Code not optimal, but readability is more important for this piece of init code!)
-                    if (coord.Length() == coreSize)
+                    if (coord.Length == coreSize)
                     {
                         switch (Config)
                         {
@@ -317,6 +317,65 @@ namespace HalmaAndroid
         public IEnumerable<KeyValuePair<HexCoord, Field>> GetFields()
         {
             return fields;
+        }
+
+        public IEnumerable<KeyValuePair<HexCoord, Field>> GetGoalFields()
+        {
+            return fields;
+        }
+
+        /// <summary>
+        /// Lists all fields that would be reachable for a piece starting from given coord.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<HexCoord> GetReachableFields(HexCoord from)
+        {
+            var visited = new HashSet<HexCoord>();
+
+            // Add direct neighbors.
+            for (int i = 0; i < 6; ++i)
+            {
+                HexCoord targetCoord = from + HexCoord.Directions[i];
+                Field targetField = this[targetCoord];
+
+                if (targetField.Type != FieldType.Invalid && targetField.PlayerPiece < 0)
+                    visited.Add(targetCoord);
+            }
+
+            // Technically not reachable, but we don't want to walk in circles during the search that comes next.
+            // Isremove it at the end of this function again.
+            visited.Add(from);
+
+            // Breath first search.
+            var searchQueue = new Queue<HexCoord>();
+            searchQueue.Enqueue(from);
+            
+            while (searchQueue.Count > 0)
+            {
+                HexCoord current = searchQueue.Dequeue();
+
+                // Check neighborhood.
+                for (int i = 0; i < 6; ++i)
+                {
+                    HexCoord targetCoord = current + HexCoord.Directions[i];
+                    Field targetField = this[targetCoord];
+
+                    // Existing field with piece?
+                    if (targetField.Type != FieldType.Invalid && targetField.PlayerPiece >= 0)
+                    {
+                        targetCoord += HexCoord.Directions[i]; // Jump!
+                        targetField = this[targetCoord];
+                        if (targetField.Type != FieldType.Invalid && targetField.PlayerPiece < 0)
+                        {
+                            if (visited.Add(targetCoord))
+                                searchQueue.Enqueue(targetCoord);
+                        }
+                    }
+                }
+            }
+
+            visited.Remove(from);
+            return visited;
         }
     }
 }

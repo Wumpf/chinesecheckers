@@ -10,7 +10,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace HalmaAndroid
+namespace HalmaAndroid.Player
 {
     class HumanPlayer : Player
     {

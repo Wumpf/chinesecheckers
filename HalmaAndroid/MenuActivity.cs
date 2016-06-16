@@ -20,7 +20,7 @@ namespace HalmaAndroid
         private int numPlayers = 2;
 
         private static readonly int[] playerCountSpinnerToCount = new[] { 2, 3, 4, 6 };
-        private static readonly Type[] playerTypeSpinnerToType = new[] { typeof(HumanPlayer) };
+        private static readonly Type[] playerTypeSpinnerToType = new[] { typeof(Player.HumanPlayer), typeof(Player.PathExplorationAi) };
 
         protected override void OnCreate(Bundle savedInstanceState)
         {

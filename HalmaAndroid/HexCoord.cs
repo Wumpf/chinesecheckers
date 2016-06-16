@@ -38,7 +38,7 @@ namespace HalmaAndroid
 
         static public HexCoord FromXY(int x, int y)
         {
-            return new HexCoord(x, y, -x -y);
+            return new HexCoord(x, y, -x - y);
         }
         static public HexCoord FromXZ(int x, int z)
         {
@@ -59,7 +59,7 @@ namespace HalmaAndroid
         {
             get
             {
-                switch(component)
+                switch (component)
                 {
                     case 0:
                         return X;
@@ -91,22 +91,22 @@ namespace HalmaAndroid
         }
 
 
-        public static HexCoord operator * (HexCoord coord, int factor)
+        public static HexCoord operator *(HexCoord coord, int factor)
         {
-            return new HexCoord(coord.X *factor, coord.Y *factor, coord.Z * factor);
+            return new HexCoord(coord.X * factor, coord.Y * factor, coord.Z * factor);
         }
 
-        public static HexCoord operator + (HexCoord a, HexCoord b)
+        public static HexCoord operator +(HexCoord a, HexCoord b)
         {
             return new HexCoord(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
-        public static HexCoord operator - (HexCoord a, HexCoord b)
+        public static HexCoord operator -(HexCoord a, HexCoord b)
         {
             return new HexCoord(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         }
 
-        public static bool operator == (HexCoord a, HexCoord b)
+        public static bool operator ==(HexCoord a, HexCoord b)
         {
             return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
         }
@@ -124,13 +124,18 @@ namespace HalmaAndroid
 
         public void ToCartesian(out float x, out float y)
         {
-            x = (float)System.Math.Sqrt(3) * (this.X + this.Z/2.0f);
-            y = 3.0f/2.0f*this.Z;
+            x = (float)System.Math.Sqrt(3) * (this.X + this.Z / 2.0f);
+            y = 3.0f / 2.0f * this.Z;
         }
 
-        public int Length()
+        public int Length
         {
-            return (System.Math.Abs(X) + System.Math.Abs(Y) + System.Math.Abs(Z)) / 2;
+            get
+            {
+                {
+                    return (System.Math.Abs(X) + System.Math.Abs(Y) + System.Math.Abs(Z)) / 2;
+                }
+            }
         }
 
         public int Distance(HexCoord b)

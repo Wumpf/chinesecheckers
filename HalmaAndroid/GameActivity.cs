@@ -17,7 +17,7 @@ namespace HalmaAndroid
         internal GameBoard GameBoard { get; private set; }
         private GameView view;
         private GameInput input;
-        private Player[] players;
+        private Player.Player[] players;
         public uint CurrentPlayer { get; private set; } = 0;
 
         protected override void OnCreate(Bundle bundle)
@@ -40,11 +40,13 @@ namespace HalmaAndroid
             SetContentView(view);
 
             // Setup players
-            players = new Player[playerTypes.Length];
-            for (int i = 0; i < playerTypes.Length; ++i)
+            players = new Player.Player[playerTypes.Length];
+            for (uint i = 0; i < playerTypes.Length; ++i)
             {
-                if (playerTypes[i] == typeof(HumanPlayer))
-                    players[i] = new HumanPlayer((uint)i, input, view);
+                if (playerTypes[i] == typeof(Player.HumanPlayer))
+                    players[i] = new Player.HumanPlayer(i, input, view);
+                else if (playerTypes[i] == typeof(Player.PathExplorationAi))
+                    players[i] = new Player.PathExplorationAi(i, this, GameBoard);
                 else
                     throw new NotImplementedException();
             }
@@ -68,6 +70,8 @@ namespace HalmaAndroid
 
         private void StartTurn(uint newCurrentPlayer)
         {
+            // todo: Check for the super rare possibility, that the player cannot move at all
+
             CurrentPlayer = newCurrentPlayer;
             players[CurrentPlayer].TurnReady += OnPlayerTurnReady;
             players[CurrentPlayer].OnTurnStarted(GameBoard);

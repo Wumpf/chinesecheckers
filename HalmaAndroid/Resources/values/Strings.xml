@@ -12,5 +12,6 @@
   <string name="player5">Player 6</string>
   <string-array name="playerTypes">
     <item>Human</item>
+    <item>Greedy Path Search AI</item>
   </string-array>
 </resources>
