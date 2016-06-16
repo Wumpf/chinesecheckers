@@ -147,12 +147,12 @@ namespace HalmaAndroid
                 case Configuration.STAR_6:
                     dirField = new Field[6]
                     {
-                        new Field {Type = FieldType.PlayerGoal5, PlayerPiece = 1},
-                        new Field {Type = FieldType.PlayerGoal0, PlayerPiece = 2},
-                        new Field {Type = FieldType.PlayerGoal1, PlayerPiece = 3},
-                        new Field {Type = FieldType.PlayerGoal2, PlayerPiece = 4},
-                        new Field {Type = FieldType.PlayerGoal3, PlayerPiece = 5},
-                        new Field {Type = FieldType.PlayerGoal4, PlayerPiece = 0}
+                        new Field {Type = FieldType.PlayerGoal4, PlayerPiece = 1},
+                        new Field {Type = FieldType.PlayerGoal5, PlayerPiece = 2},
+                        new Field {Type = FieldType.PlayerGoal0, PlayerPiece = 3},
+                        new Field {Type = FieldType.PlayerGoal1, PlayerPiece = 4},
+                        new Field {Type = FieldType.PlayerGoal2, PlayerPiece = 5},
+                        new Field {Type = FieldType.PlayerGoal3, PlayerPiece = 0}
                     };
                     break;
 

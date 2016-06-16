@@ -249,7 +249,7 @@ namespace HalmaAndroid
 
         private static readonly Color[] playerColors = new Color[6]
         {
-            Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Black, Color.Violet
+            Color.Red, Color.RoyalBlue, Color.Green, Color.Orange, Color.Violet, Color.MidnightBlue
         };
 
         private readonly Color hightlightColor = Color.MediumTurquoise;
