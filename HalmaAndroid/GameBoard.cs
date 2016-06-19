@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Waypoint = System.Collections.Generic.KeyValuePair<HalmaAndroid.HexCoord, HalmaAndroid.GameBoard.WaypointInfo>;
+
 namespace HalmaAndroid
 {
     static class GameBoardEnumExtensions
@@ -324,13 +326,47 @@ namespace HalmaAndroid
             return fields;
         }
 
+        #region Path Finding
+
+        public class WaypointInfo
+        {
+            public WaypointInfo(HexCoord position, WaypointInfo predecessor, int distanceToStart)
+            {
+                Position = position;
+                Predecessor = predecessor;
+                DistanceToStart = distanceToStart;
+            }
+
+            public void TryUpdatePredecessor(WaypointInfo predecessorCandidate)
+            {
+                if(predecessorCandidate.DistanceToStart < (Predecessor == null ? Predecessor.DistanceToStart : 0))
+                {
+                    Predecessor = predecessorCandidate;
+                    DistanceToStart = predecessorCandidate.DistanceToStart + 1;
+                }
+            }
+
+            public HexCoord Position { get; set; }
+            public WaypointInfo Predecessor { get; private set; }
+            public int DistanceToStart { get; private set; }
+        }
+
         /// <summary>
         /// Lists all fields that would be reachable for a piece starting from given coord.
         /// </summary>
         /// <returns></returns>
         public IEnumerable<HexCoord> GetReachableFields(HexCoord from)
         {
-            var visited = new HashSet<HexCoord>();
+            return GetPossiblePaths(from).Select(x => x.Key);
+        }
+
+        public Dictionary<HexCoord, WaypointInfo> GetPossiblePaths(HexCoord from)
+        {
+            var visited = new Dictionary<HexCoord, WaypointInfo>();
+
+            // Technically not reachable, but we don't want to walk in circles during the search that comes next.
+            var startWaypoint = new Waypoint(from, new WaypointInfo(from, null, 0));
+            visited.Add(startWaypoint.Key, startWaypoint.Value);
 
             // Add direct neighbors.
             for (int i = 0; i < 6; ++i)
@@ -339,25 +375,21 @@ namespace HalmaAndroid
                 Field targetField = this[targetCoord];
 
                 if (targetField.Type != FieldType.Invalid && targetField.PlayerPiece < 0)
-                    visited.Add(targetCoord);
+                    visited.Add(targetCoord, new WaypointInfo(targetCoord, startWaypoint.Value, 1));
             }
 
-            // Technically not reachable, but we don't want to walk in circles during the search that comes next.
-            // Isremove it at the end of this function again.
-            visited.Add(from);
-
             // Breath first search.
-            var searchQueue = new Queue<HexCoord>();
-            searchQueue.Enqueue(from);
+            var searchQueue = new Queue<Waypoint>();
+            searchQueue.Enqueue(startWaypoint);
             
             while (searchQueue.Count > 0)
             {
-                HexCoord current = searchQueue.Dequeue();
+                Waypoint current = searchQueue.Dequeue();
 
                 // Check neighborhood.
                 for (int i = 0; i < 6; ++i)
                 {
-                    HexCoord targetCoord = current + HexCoord.Directions[i];
+                    HexCoord targetCoord = current.Key + HexCoord.Directions[i];
                     Field targetField = this[targetCoord];
 
                     // Existing field with piece?
@@ -367,15 +399,23 @@ namespace HalmaAndroid
                         targetField = this[targetCoord];
                         if (targetField.Type != FieldType.Invalid && targetField.PlayerPiece < 0)
                         {
-                            if (visited.Add(targetCoord))
-                                searchQueue.Enqueue(targetCoord);
+                            WaypointInfo oldWaypoint = null;
+                            if (visited.TryGetValue(targetCoord, out oldWaypoint))
+                                oldWaypoint.TryUpdatePredecessor(current.Value);
+                            else
+                            {
+                                Waypoint newWaypoint = new Waypoint(targetCoord, new WaypointInfo(targetCoord, current.Value, current.Value.DistanceToStart + 1));
+                                visited.Add(newWaypoint.Key, newWaypoint.Value);
+                                searchQueue.Enqueue(newWaypoint);
+                            }
                         }
                     }
                 }
             }
 
-            visited.Remove(from);
             return visited;
         }
+
+        #endregion
     }
 }

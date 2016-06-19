@@ -81,11 +81,14 @@ namespace HalmaAndroid
 
         private void OnPlayerTurnReady(Turn turn)
         {
-            if(turn.IsValidTurn(GameBoard, CurrentPlayer))
+            if (turn.ValidateAndUpdateTurnSequence(GameBoard, CurrentPlayer))
             {
                 players[CurrentPlayer].TurnReady -= OnPlayerTurnReady;
 
-                ExecuteTurn(turn);
+                GameBoard.ExecuteTurn(turn);
+
+                view.TurnAnimationFinished += OnTurnAnimationFinished;
+                view.AnimateTurn(turn, CurrentPlayer);
             }
             else
             {
@@ -95,9 +98,10 @@ namespace HalmaAndroid
             view.HasHighlighted = false;
         }
 
-        private void ExecuteTurn(Turn turn)
+        private void OnTurnAnimationFinished()
         {
-            GameBoard.ExecuteTurn(turn);
+            view.TurnAnimationFinished -= OnTurnAnimationFinished;
+
             players[CurrentPlayer].OnTurnEnded();
 
             if (GameBoard.HasPlayerWon(CurrentPlayer))
@@ -108,8 +112,6 @@ namespace HalmaAndroid
             {
                 StartTurn((CurrentPlayer + 1) % (uint)players.Length);
             }
-
-            view.Invalidate();
         }
     }
 }

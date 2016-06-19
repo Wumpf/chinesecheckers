@@ -240,12 +240,15 @@ namespace HalmaAndroid
             canvas.Scale(GameDrawScale, GameDrawScale);
             canvas.Translate(GameDrawOffsetX, GameDrawOffsetY);
             DrawBackground(game.GameBoard.GetFields().Select(x => x.Key), game.GameBoard.Config, canvas);
+
+            animation.Update();
+            if (animation.Active)
+                Invalidate();
             DrawFields(game.GameBoard.GetFields(), canvas);
 
             canvas.Matrix = new Matrix();
             DrawPlayerInfo(canvas);
         }
-
 
         private static readonly Color[] playerColors = new Color[6]
         {
@@ -371,7 +374,8 @@ namespace HalmaAndroid
                 float x, y;
                 field.Key.ToCartesian(out x, out y);
 
-                if (player >= 0)
+                if (player >= 0 &&
+                    !(animation.Active && animation.Turn.To == field.Key))
                 {
                     paintFillAA.Color = playerColors[player];
                     canvas.DrawCircle(x, y, playerRadius, paintFillAA);
@@ -386,6 +390,29 @@ namespace HalmaAndroid
                     canvas.DrawCircle(x, y, fieldRadius, paintFillAA);
                 }
             }
+
+            // Animated turn.
+            if (animation.Active)
+            {
+                float x, y;
+                animation.GetCurrentCartesian(out x, out y);
+                paintFillAA.Color = playerColors[animation.Player];
+                canvas.DrawCircle(x, y, playerRadius, paintFillAA);
+            }
+        }
+
+        TurnAnimation animation = new TurnAnimation();
+        public void AnimateTurn(Turn turn, uint player)
+        {
+            animation.AnimateTurn(turn, player);
+            Invalidate();
+        }
+
+        public delegate void AnimationFinishedHandler();
+        public event AnimationFinishedHandler TurnAnimationFinished
+        {
+            add { animation.AnimationFinished += value; }
+            remove { animation.AnimationFinished -= value; }
         }
 
         #endregion

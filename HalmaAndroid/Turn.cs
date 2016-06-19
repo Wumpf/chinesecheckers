@@ -7,16 +7,41 @@ namespace HalmaAndroid
 {
     struct Turn
     {
-        public HexCoord From;
-        public HexCoord To;
+        public HexCoord From
+        {
+            get { return from; }
+            set
+            {
+                from = value;
+                TurnSequence = null;
+            }
+        }
+        public HexCoord from;
+
+        public HexCoord To
+        {
+            get { return to; }
+            set
+            {
+                to = value;
+                TurnSequence = null;
+            }
+        }
+        private HexCoord to;
 
         /// <summary>
-        /// Checks whether the given turn is valid.
+        /// List of jumps necessary to perform this turn.
+        /// </summary>
+        /// <see cref="ValidateAndUpdateTurnSequence(GameBoard, uint)"/>
+        public List<HexCoord> TurnSequence { get; private set; }
+
+        /// <summary>
+        /// Validates the turn and updates TurnSequence.
         /// </summary>
         /// <param name="currentBoard">Game board state on which the turn is checked</param>
         /// <param name="player">Player performing the turn.</param>
-        /// <returns></returns>
-        public bool IsValidTurn(GameBoard currentBoard, uint player)
+        /// <returns>False if the turn is not valid.</returns>
+        public bool ValidateAndUpdateTurnSequence(GameBoard currentBoard, uint player)
         {
             // No actual move.
             if (From == To)
@@ -35,7 +60,27 @@ namespace HalmaAndroid
                 return false;
 
             // Actual check.
-            return currentBoard.GetReachableFields(From).Contains(To);
+            Dictionary<HexCoord, GameBoard.WaypointInfo> reachableFields = currentBoard.GetPossiblePaths(From);
+
+            GameBoard.WaypointInfo endWaypoint;
+            if (reachableFields.TryGetValue(To, out endWaypoint))
+            {
+                TurnSequence = new List<HexCoord>();
+                do
+                {
+                    TurnSequence.Add(endWaypoint.Position);
+                    endWaypoint = endWaypoint.Predecessor;
+                } while (endWaypoint != null);
+
+                TurnSequence.Reverse();
+
+                return true;
+            }
+            else
+            {
+                TurnSequence = null;
+                return false;
+            }
         }
     }
 }
