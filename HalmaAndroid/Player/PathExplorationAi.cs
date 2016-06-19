@@ -48,6 +48,9 @@ namespace HalmaAndroid.Player
 
         private int ComputeScore(HexCoord start, HexCoord end)
         {
+            if (start == end)
+                return -2;
+
             // Principle: "Distance reduction to target field with highest distance"
             int distanceBefore = start.Distance(mostDistantGoal);
             int distanceAfter = end.Distance(mostDistantGoal);
@@ -87,6 +90,9 @@ namespace HalmaAndroid.Player
             }
 
             lastTurn = new Turn() { From = movingPiecePos, To = targetPos };
+
+            if (!lastTurn.ValidateAndUpdateTurnSequence(board, PlayerIndex))
+                return;
 
 #if CONCURRENT_AI
             gameActivity.RunOnUiThread(() => OnTurnReady(lastTurn));
