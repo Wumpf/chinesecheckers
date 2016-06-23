@@ -268,7 +268,7 @@ namespace HalmaShared
         /// Check weather a given player has won.
         /// </summary>
         /// <returns>True if the current player has won.</returns>
-        public bool HasPlayerWon(uint currentPlayer)
+        public bool HasPlayerWon(int currentPlayer)
         {
             foreach (Field field in fields.Values)
             {

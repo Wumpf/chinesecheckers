@@ -17,7 +17,7 @@ namespace HalmaShared
 
         private Player.Player[] players;
 
-        public uint CurrentPlayer { get; private set; } = 0;
+        public int CurrentPlayer { get; private set; } = 0;
 
         /// <summary>
         /// Constructs a new match.
@@ -35,7 +35,7 @@ namespace HalmaShared
 
             // Setup players
             players = new Player.Player[playerTypes.Length];
-            for (uint i = 0; i < playerTypes.Length; ++i)
+            for (int i = 0; i < playerTypes.Length; ++i)
             {
                 if (playerTypes[i] == typeof(Player.HumanPlayer))
                     players[i] = new Player.HumanPlayer(i, input, view);
@@ -53,13 +53,15 @@ namespace HalmaShared
         //    return input.OnTouchEvent(e);
         //}
 
-        private void StartTurn(uint newCurrentPlayer)
+        private void StartTurn(int newCurrentPlayer)
         {
             // todo: Check for the super rare possibility, that the player cannot move at all
 
             CurrentPlayer = newCurrentPlayer;
             players[CurrentPlayer].TurnReady += OnPlayerTurnReady;
             players[CurrentPlayer].OnTurnStarted(GameBoard);
+
+            View.TransitionToPlayer(CurrentPlayer);
 
             // todo: trigger visualization/feedback
         }
@@ -95,7 +97,7 @@ namespace HalmaShared
             }
             else
             {
-                StartTurn((CurrentPlayer + 1) % (uint)players.Length);
+                StartTurn((CurrentPlayer + 1) % players.Length);
             }
         }
 

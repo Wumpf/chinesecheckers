@@ -142,7 +142,7 @@ namespace HalmaAndroid
             DrawFields(Board.GetFields(), canvas);
 
             canvas.Matrix = new Matrix();
-            DrawPlayerInfo(canvas, 0); // TODO
+            DrawPlayerInfo(canvas, CurrentPlayer);
         }
 
         private void DrawPlayerInfo(Canvas canvas, int currentPlayer)

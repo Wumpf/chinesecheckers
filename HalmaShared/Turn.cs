@@ -41,7 +41,7 @@ namespace HalmaShared
         /// <param name="currentBoard">Game board state on which the turn is checked</param>
         /// <param name="player">Player performing the turn.</param>
         /// <returns>False if the turn is not valid.</returns>
-        public bool ValidateAndUpdateTurnSequence(GameBoard currentBoard, uint player)
+        public bool ValidateAndUpdateTurnSequence(GameBoard currentBoard, int player)
         {
             // No actual move.
             if (From == To)

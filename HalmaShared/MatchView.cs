@@ -11,6 +11,7 @@ namespace HalmaShared
     public abstract class MatchView : IDisposable
     {
         protected GameBoard Board { get; private set; }
+        protected int CurrentPlayer { get; private set; }
 
         protected abstract float Width { get; }
         protected abstract float Height { get; }
@@ -130,9 +131,9 @@ namespace HalmaShared
             GameDrawOffsetX = (float)((drawAreaWidth / GameDrawScale - (maxX - minX)) / 2 - minX + gameBoardRect.Left / GameDrawScale);
             GameDrawOffsetY = (float)((drawAreaHeight / GameDrawScale - (maxY - minY)) / 2 - minY + gameBoardRect.Top / GameDrawScale);
         }
-        public void ShowWinningScreen(uint winningPlayer)
+        public void ShowWinningScreen(int winningPlayer)
         {
-            this.winningPlayer = (int)winningPlayer;
+            this.winningPlayer = winningPlayer;
         }
         protected void DrawToGameSpace(float drawX, float drawY, out float gameX, out float gameY)
         {
@@ -204,7 +205,7 @@ namespace HalmaShared
 
 
         protected TurnAnimation animation = new TurnAnimation();
-        public void AnimateTurn(Turn turn, uint player)
+        public void AnimateTurn(Turn turn, int player)
         {
             animation.AnimateTurn(turn, player);
             Invalidate();
@@ -215,6 +216,12 @@ namespace HalmaShared
         {
             add { animation.AnimationFinished += value; }
             remove { animation.AnimationFinished -= value; }
+        }
+
+        public void TransitionToPlayer(int currentPlayer)
+        {
+            // todo: actual transition.
+            CurrentPlayer = currentPlayer;
         }
 
         #endregion

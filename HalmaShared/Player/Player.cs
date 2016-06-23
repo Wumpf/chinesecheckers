@@ -2,7 +2,7 @@ namespace HalmaShared.Player
 {
     public abstract class Player
     {
-        protected Player(uint playerNumber)
+        protected Player(int playerNumber)
         {
             PlayerIndex = playerNumber;
         }
@@ -43,6 +43,6 @@ namespace HalmaShared.Player
         /// <summary>
         /// The index of the player in the current game.
         /// </summary>
-        public readonly uint PlayerIndex;
+        public readonly int PlayerIndex;
     }
 }

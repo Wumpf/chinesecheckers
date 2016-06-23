@@ -3,7 +3,7 @@ namespace HalmaShared
     public class TurnAnimation
     {
         public Turn Turn { get; private set; } = new Turn();
-        public uint Player { get; private set; }
+        public int Player { get; private set; }
 
         private const double timePerWaypoint = 0.25f;
         private int reachedWaypoint = -1;
@@ -53,7 +53,7 @@ namespace HalmaShared
             y = MathUtils.Lerp(aY, bY, animationPercentage);
         }
 
-        public void AnimateTurn(Turn turn, uint player)
+        public void AnimateTurn(Turn turn, int player)
         {
             System.Diagnostics.Debug.Assert(turn.TurnSequence != null);
             System.Diagnostics.Debug.Assert(turn.TurnSequence.Count > 1);

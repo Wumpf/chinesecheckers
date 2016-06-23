@@ -14,7 +14,7 @@ namespace HalmaShared.Player
         private HexCoord movingPiecePos;
         private bool pieceSelected = false;
 
-        public HumanPlayer(uint playerNumber, MatchInput input, MatchView view) : base(playerNumber)
+        public HumanPlayer(int playerNumber, MatchInput input, MatchView view) : base(playerNumber)
         {
             gameInput = input;
             gameView = view;

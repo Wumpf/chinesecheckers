@@ -10,7 +10,7 @@ namespace HalmaShared.Player
         private HexCoord mostDistantGoal;
         private Turn lastTurn;
 
-        public PathExplorationAi(uint playerNumber, GameBoard board) : base(playerNumber)
+        public PathExplorationAi(int playerNumber, GameBoard board) : base(playerNumber)
         {
             // Assuming config where distant are automatically farther away from the center.
             int mostDistant = -1;
