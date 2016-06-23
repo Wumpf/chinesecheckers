@@ -184,7 +184,9 @@ namespace HalmaShared
 
         public static readonly Color[] playerColors = new Color[6]
         {
-            Color.Red, new Color(0.1646, 0.2658, 0.5696), Color.Green, new Color(0.6071, 0.3929, 0.0), new Color(0.3927,0.2145,0.3927) , new Color(0.0, 0.4270, 0.5730)
+            new Color(1.0, 0.0, 0.0), new Color(65/255.0, 105/255.0, 225/255.0),
+            new Color(0.0, 0.8, 0.0), new Color(1.0, 165/255.0, 0.0),
+            new Color(238/255.0, 130/255.0, 238/255.0) , new Color(25/255.0, 25/255.0, 112/255.0)
         };
 
         protected readonly Color hightlightColor = new Color(0.1290, 0.4516, 0.4194);
