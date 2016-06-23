@@ -1,8 +1,8 @@
-namespace HalmaAndroid
+namespace HalmaShared
 {
     // Big thanks to Amit Patel's Hexagon page! http://www.redblobgames.com/grids/hexagons/
 
-    struct HexCoord
+    public struct HexCoord
     {
         public HexCoord(HexCoord coord)
         {

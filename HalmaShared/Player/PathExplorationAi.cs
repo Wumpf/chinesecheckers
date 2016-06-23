@@ -3,25 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-
-namespace HalmaAndroid.Player
+namespace HalmaShared.Player
 {
-    class PathExplorationAi : Player
+    public class PathExplorationAi : Player
     {
-        private Activity gameActivity;
         private HexCoord mostDistantGoal;
         private Turn lastTurn;
 
-        public PathExplorationAi(uint playerNumber, Activity gameActivity, GameBoard board) : base(playerNumber)
+        public PathExplorationAi(uint playerNumber, GameBoard board) : base(playerNumber)
         {
-            this.gameActivity = gameActivity;
-
             // Assuming config where distant are automatically farther away from the center.
             int mostDistant = -1;
             foreach (KeyValuePair<HexCoord, GameBoard.Field> field in board.GetFields())
@@ -95,7 +85,7 @@ namespace HalmaAndroid.Player
                 return;
 
 #if CONCURRENT_AI
-            gameActivity.RunOnUiThread(() => OnTurnReady(lastTurn));
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(() => OnTurnReady(lastTurn));
 #else
             OnTurnReady(lastTurn);
 #endif

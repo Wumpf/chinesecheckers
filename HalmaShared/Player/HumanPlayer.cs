@@ -3,25 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-
-namespace HalmaAndroid.Player
+namespace HalmaShared.Player
 {
-    class HumanPlayer : Player
+    public class HumanPlayer : Player
     {
-        private readonly GameInput gameInput;
-        private readonly GameView gameView;
+        private readonly MatchInput gameInput;
+        private readonly MatchView gameView;
         private GameBoard gameBoard;
 
         private HexCoord movingPiecePos;
         private bool pieceSelected = false;
 
-        public HumanPlayer(uint playerNumber, GameInput input, GameView view) : base(playerNumber)
+        public HumanPlayer(uint playerNumber, MatchInput input, MatchView view) : base(playerNumber)
         {
             gameInput = input;
             gameView = view;

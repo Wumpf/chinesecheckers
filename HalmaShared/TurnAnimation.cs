@@ -1,6 +1,6 @@
-namespace HalmaAndroid
+namespace HalmaShared
 {
-    class TurnAnimation
+    public class TurnAnimation
     {
         public Turn Turn { get; private set; } = new Turn();
         public uint Player { get; private set; }
@@ -13,7 +13,7 @@ namespace HalmaAndroid
 
         public bool Active => reachedWaypoint >= 0;
 
-        public event GameView.AnimationFinishedHandler AnimationFinished;
+        public event MatchView.AnimationFinishedHandler AnimationFinished;
 
         public void Update()
         {

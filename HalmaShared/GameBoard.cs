@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using Waypoint = System.Collections.Generic.KeyValuePair<HalmaAndroid.HexCoord, HalmaAndroid.GameBoard.WaypointInfo>;
+using Waypoint = System.Collections.Generic.KeyValuePair<HalmaShared.HexCoord, HalmaShared.GameBoard.WaypointInfo>;
 
-namespace HalmaAndroid
+namespace HalmaShared
 {
-    static class GameBoardEnumExtensions
+    public static class GameBoardEnumExtensions
     {
         public static bool IsStar(this GameBoard.Configuration config)
         {
@@ -25,7 +25,7 @@ namespace HalmaAndroid
         }
     }
 
-    class GameBoard
+    public class GameBoard
     {
         public enum Configuration
         {

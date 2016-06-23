@@ -9,22 +9,29 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using HalmaShared;
 
 namespace HalmaAndroid
 {
     [Activity(Label = "@string/menuActivityLabel", MainLauncher = true)]
-    public class MenuActivity : Activity
+    public class MenuActivity : global::Xamarin.Forms.Platform.Android.FormsApplicationActivity
     {
         private Spinner[] playerTypeSpinner;
         private TextView[] playerTypeText;
         private int numPlayers = 2;
 
         private static readonly int[] playerCountSpinnerToCount = new[] { 2, 3, 4, 6 };
-        private static readonly Type[] playerTypeSpinnerToType = new[] { typeof(Player.HumanPlayer), typeof(Player.PathExplorationAi) };
+        private static readonly Type[] playerTypeSpinnerToType = new[] { typeof(HalmaShared.Player.HumanPlayer), typeof(HalmaShared.Player.PathExplorationAi) };
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+
+            global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+
+            LoadApplication(new HalmaShared.App());
+
+            return;
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Menu);
