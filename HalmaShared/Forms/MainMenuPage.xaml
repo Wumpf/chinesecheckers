@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:HalmaShared.Forms;assembly=HalmaShared"
+             x:Class="HalmaShared.Forms.MainMenuPage">
+  
+  <StackLayout Orientation="Vertical">
+    <StackLayout Orientation="Horizontal" HorizontalOptions="CenterAndExpand">
+      <Label Text="Number of Players" VerticalOptions="Center" HorizontalOptions="Center" FontSize="16"/>
+      <local:BindablePicker SelectedItem="{Binding NumPlayers}" ItemsSource="{x:Static local:MainMenuPage.NumPlayerOptions}" SelectedIndexChanged="OnNumPlayersChanges"/>
+    </StackLayout>
+
+    <Grid HorizontalOptions="Center" VerticalOptions="Center">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <Label x:Name="playerLabel0" Text="Player 1" Grid.Row="0" Grid.Column="0" VerticalOptions="Center"/>
+      <local:BindablePicker x:Name="playerType0" ItemsSource="{x:Static local:MainMenuPage.PlayerTypeDescriptions}" SelectedIndex="{Binding SelectedPlayerTypeIndices[0]}" Grid.Row="0" Grid.Column="1"/>
+      <Label x:Name="playerLabel1" Text="Player 2" Grid.Row="1" Grid.Column="0" VerticalOptions="Center"/>
+      <local:BindablePicker x:Name="playerType1" ItemsSource="{x:Static local:MainMenuPage.PlayerTypeDescriptions}" SelectedIndex="{Binding SelectedPlayerTypeIndices[1]}" Grid.Row="1" Grid.Column="1"/>
+      <Label x:Name="playerLabel2" Text="Player 3" Grid.Row="2" Grid.Column="0" VerticalOptions="Center"/>
+      <local:BindablePicker x:Name="playerType2" ItemsSource="{x:Static local:MainMenuPage.PlayerTypeDescriptions}" SelectedIndex="{Binding SelectedPlayerTypeIndices[2]}" Grid.Row="2" Grid.Column="1"/>
+      <Label x:Name="playerLabel3" Text="Player 4" Grid.Row="3" Grid.Column="0" VerticalOptions="Center"/>
+      <local:BindablePicker x:Name="playerType3" ItemsSource="{x:Static local:MainMenuPage.PlayerTypeDescriptions}" SelectedIndex="{Binding SelectedPlayerTypeIndices[3]}" Grid.Row="3" Grid.Column="1"/>
+      <Label x:Name="playerLabel4" Text="Player 5" Grid.Row="4" Grid.Column="0" VerticalOptions="Center"/>
+      <local:BindablePicker x:Name="playerType4" ItemsSource="{x:Static local:MainMenuPage.PlayerTypeDescriptions}" SelectedIndex="{Binding SelectedPlayerTypeIndices[4]}" Grid.Row="4" Grid.Column="1"/>
+      <Label x:Name="playerLabel5" Text="Player 6" Grid.Row="5" Grid.Column="0" VerticalOptions="Center"/>
+      <local:BindablePicker x:Name="playerType5" ItemsSource="{x:Static local:MainMenuPage.PlayerTypeDescriptions}" SelectedIndex="{Binding SelectedPlayerTypeIndices[5]}" Grid.Row="5" Grid.Column="1"/>
+    
+    </Grid>
+
+    <Button Text="Start Game" HorizontalOptions="Center" Clicked="OnGameStarted"/>
+  
+  </StackLayout>
+</ContentPage>

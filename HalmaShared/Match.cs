@@ -27,7 +27,7 @@ namespace HalmaShared
         public Match(Type[] playerTypes, GameBoard gameBoard, MatchView view, MatchInput input)
         {
             System.Diagnostics.Debug.Assert(gameBoard != null && view != null && input != null);
-            System.Diagnostics.Debug.Assert(gameBoard.NumPlayers == playerTypes.Length, "There are not enought players for the current game board configuration.");
+            System.Diagnostics.Debug.Assert(gameBoard.Config.NumPlayers() == playerTypes.Length, "There are not enought players for the current game board configuration.");
 
             this.GameBoard = gameBoard;
             this.View = view;

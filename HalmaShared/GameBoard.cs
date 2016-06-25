@@ -14,6 +14,40 @@ namespace HalmaShared
             return true;
         }
 
+        public static int NumPlayers(this GameBoard.Configuration config)
+        {
+            switch (config)
+            {
+                case GameBoard.Configuration.STAR_2:
+                    return 2;
+                case GameBoard.Configuration.STAR_3:
+                    return 3;
+                case GameBoard.Configuration.STAR_4:
+                    return 4;
+                case GameBoard.Configuration.STAR_6:
+                    return 6;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public static GameBoard.Configuration ConfigFromPlayerCount(int numPlayers)
+        {
+            switch (numPlayers)
+            {
+                case 2:
+                    return GameBoard.Configuration.STAR_2;
+                case 3:
+                    return GameBoard.Configuration.STAR_3;
+                case 4:
+                    return GameBoard.Configuration.STAR_4;
+                case 6:
+                    return GameBoard.Configuration.STAR_6;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         /// <summary>
         /// Returns for which player the given FieldType is a goal.
         /// </summary>
@@ -53,26 +87,6 @@ namespace HalmaShared
         /// Map configuration. May be used for specific/optimized drawing and AI.
         /// </summary>
         public Configuration Config { get; private set; }
-
-        public uint NumPlayers
-        {
-            get
-            {
-                switch (Config)
-                {
-                    case Configuration.STAR_2:
-                        return 2;
-                    case Configuration.STAR_3:
-                        return 3;
-                    case Configuration.STAR_4:
-                        return 4;
-                    case Configuration.STAR_6:
-                        return 6;
-                    default:
-                        throw new NotImplementedException();
-                }
-            }
-        }
 
         public enum FieldType
         {
