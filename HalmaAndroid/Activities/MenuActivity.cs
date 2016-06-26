@@ -4,7 +4,7 @@ using Android.OS;
 using HalmaShared;
 using System;
 
-namespace HalmaAndroid
+namespace HalmaAndroid.Activities
 {
     [Activity(Label = "@string/menuActivityLabel", MainLauncher = true)]
     public class MenuActivity : global::Xamarin.Forms.Platform.Android.FormsApplicationActivity

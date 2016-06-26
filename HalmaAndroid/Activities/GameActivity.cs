@@ -4,7 +4,7 @@ using Android.Views;
 using HalmaShared;
 using System;
 
-namespace HalmaAndroid
+namespace HalmaAndroid.Activities
 {
     [Activity(Label = "HalmaAndroid", //MainLauncher = true, 
                 Icon = "@drawable/icon",
