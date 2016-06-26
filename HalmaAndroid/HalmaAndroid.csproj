@@ -117,6 +117,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AndroidCanvas.cs" />
     <Compile Include="ColorExtension.cs" />
     <Compile Include="GameActivity.cs" />
     <Compile Include="MatchInput.cs" />

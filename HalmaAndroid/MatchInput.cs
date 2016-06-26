@@ -1,14 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
 using Android.Views;
-using Android.Widget;
+using Xamarin.Forms;
 
 namespace HalmaAndroid
 {
@@ -16,7 +7,7 @@ namespace HalmaAndroid
     {
         class InputListener : Java.Lang.Object, GestureDetector.IOnGestureListener, ScaleGestureDetector.IOnScaleGestureListener
         {
-            private HalmaAndroid.MatchView view;
+            private HalmaShared.MatchView2D view;
             private GestureDetector scrollListener;
             private ScaleGestureDetector scaleDetector;
 
@@ -49,12 +40,11 @@ namespace HalmaAndroid
                 scaleFactor = view.GameDrawScale / oldGameDrawScale; // Apply constraints.
 
                 // Scale the distance between origin (offset) and scale center.
-                float oldOffsetDrawSpaceX = view.GameDrawOffsetX * oldGameDrawScale;
-                float oldOffsetDrawSpaceY = view.GameDrawOffsetY * oldGameDrawScale;
-                float newOffsetDrawSpaceX = (oldOffsetDrawSpaceX - detector.FocusX) * scaleFactor + detector.FocusX;
-                float newOffsetDrawSpaceY = (oldOffsetDrawSpaceY - detector.FocusY) * scaleFactor + detector.FocusY;
-                view.GameDrawOffsetX = newOffsetDrawSpaceX / view.GameDrawScale;
-                view.GameDrawOffsetY = newOffsetDrawSpaceY / view.GameDrawScale;
+                Vec2 oldOffsetDrawSpace = new Vec2(view.GameDrawOffset.X * oldGameDrawScale, view.GameDrawOffset.Y * oldGameDrawScale);
+
+                double newOffsetDrawSpaceX = (oldOffsetDrawSpace.X - detector.FocusX) * scaleFactor + detector.FocusX;
+                double newOffsetDrawSpaceY = (oldOffsetDrawSpace.Y - detector.FocusY) * scaleFactor + detector.FocusY;
+                view.GameDrawOffset = new Vec2(newOffsetDrawSpaceX / view.GameDrawScale, newOffsetDrawSpaceY / view.GameDrawScale);
 
                 view.Invalidate();
 
@@ -74,7 +64,7 @@ namespace HalmaAndroid
             {
                 if (FieldTouched != null)
                 {
-                    var coord = view.GetTouchResult(e);
+                    var coord = view.GetTouchResult(new Vec2(e.GetX(), e.GetY()));
                     if (coord != null)
                         FieldTouched(coord.Value);
                 }
@@ -94,8 +84,8 @@ namespace HalmaAndroid
 
             public bool OnScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
             {
-                view.GameDrawOffsetX -= distanceX / view.GameDrawScale;
-                view.GameDrawOffsetY -= distanceY / view.GameDrawScale;
+                view.GameDrawOffset = new Vec2(view.GameDrawOffset.X - distanceX / view.GameDrawScale, 
+                                               view.GameDrawOffset.Y - distanceY / view.GameDrawScale);
                 view.Invalidate();
                 return true;
             }

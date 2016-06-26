@@ -35,12 +35,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Canvas.cs" />
     <Compile Include="Forms\BindablePicker.cs" />
     <Compile Include="GameBoard.cs" />
     <Compile Include="HexCoord.cs" />
     <Compile Include="Match.cs" />
     <Compile Include="MatchInput.cs" />
     <Compile Include="MatchView.cs" />
+    <Compile Include="MatchView2D.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="Forms\MainMenuPage.xaml.cs">
       <DependentUpon>MainMenuPage.xaml</DependentUpon>
@@ -52,6 +54,7 @@
     <Compile Include="Turn.cs" />
     <Compile Include="TurnAnimation.cs" />
     <Compile Include="Forms\XamarinFormApp.cs" />
+    <Compile Include="Vec2Extension.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">

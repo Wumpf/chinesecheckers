@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Xamarin.Forms;
 
@@ -13,41 +9,6 @@ namespace HalmaShared
         protected GameBoard Board { get; private set; }
         protected int CurrentPlayer { get; private set; }
 
-        protected abstract float Width { get; }
-        protected abstract float Height { get; }
-
-        /// <summary>
-        /// The entire draw area.
-        /// </summary>
-        protected Rectangle visibleRect = new Rectangle();
-        /// <summary>
-        /// Area for drawing the gameboard.
-        /// </summary>
-        protected Rectangle gameBoardRect = new Rectangle();
-        protected const int playerInfoBarHeight = 150;
-        protected const int playerTextHeight = 80;
-
-        /// <summary>
-        /// Translation offsets for the canvas when drawing with game coordinates.
-        /// </summary>
-        public float GameDrawOffsetX { get; set; }
-        public float GameDrawOffsetY { get; set; }
-        /// <summary>
-        /// Scale factor for the canvas when drawing with game coordinates.
-        /// </summary>
-        public float GameDrawScale
-        {
-            get { return gameDrawScale; }
-            set
-            {
-                gameDrawScale = value;
-                gameDrawScale = System.Math.Max(gameDrawScale, minGameDrawScale);
-                float maxGameDrawScale = System.Math.Min(Width, Height) / (playerRadius * 10.0f);
-                gameDrawScale = System.Math.Min(gameDrawScale, maxGameDrawScale);
-            }
-        }
-        float gameDrawScale;
-        float minGameDrawScale;
 
         protected int winningPlayer = -1;
 
@@ -85,103 +46,20 @@ namespace HalmaShared
             this.Board = board;
         }
 
-        public void OnSizeChanged(int w, int h, int oldw, int oldh)
-        {
-            GetWindowVisibleDisplayFrame(out visibleRect);
-            gameBoardRect.Top = visibleRect.Top + playerInfoBarHeight;
-            gameBoardRect.Bottom = visibleRect.Bottom;
-            gameBoardRect.Left = visibleRect.Left;
-            gameBoardRect.Right = visibleRect.Right;
+        protected abstract float Width { get; }
+        protected abstract float Height { get; }
 
-            ResetBoardScale(Board.GetFields());
-        }
+        public abstract void OnSizeChanged(int w, int h, int oldw, int oldh);
 
         protected abstract void GetWindowVisibleDisplayFrame(out Rectangle rect);
 
-        private void ResetBoardScale(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields)
-        {
-            // Gather points in cartesian coordinates.
-            // All spatial properties here might be precomputed
-            float minX = int.MaxValue;
-            float minY = int.MaxValue;
-            float maxX = int.MinValue;
-            float maxY = int.MinValue;
-            foreach (KeyValuePair<HexCoord, GameBoard.Field> field in fields)
-            {
-                if (field.Value.Type == GameBoard.FieldType.Invalid)
-                    continue;
-
-                float x, y;
-                field.Key.ToCartesian(out x, out y);
-
-                minX = System.Math.Min(minX, x);
-                maxX = System.Math.Max(maxX, x);
-                minY = System.Math.Min(minY, y);
-                maxY = System.Math.Max(maxY, y);
-            }
-            float extentX = maxX - minX;
-            float extentY = maxY - minY;
-
-            // Transform to fit canvas' clipping space. It is important not to use canvas.Width/Height diRectanglely, since the system's buttom bar bar clips!
-            double drawAreaWidth = gameBoardRect.Size.Width;
-            double drawAreaHeight = gameBoardRect.Size.Height;
-            GameDrawScale = (float)System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / extentX,
-                                                   (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / extentY);
-            minGameDrawScale = GameDrawScale;
-            GameDrawOffsetX = (float)((drawAreaWidth / GameDrawScale - (maxX - minX)) / 2 - minX + gameBoardRect.Left / GameDrawScale);
-            GameDrawOffsetY = (float)((drawAreaHeight / GameDrawScale - (maxY - minY)) / 2 - minY + gameBoardRect.Top / GameDrawScale);
-        }
-        public void ShowWinningScreen(int winningPlayer)
+        public virtual void ShowWinningScreen(int winningPlayer)
         {
             this.winningPlayer = winningPlayer;
         }
-        protected void DrawToGameSpace(float drawX, float drawY, out float gameX, out float gameY)
-        {
-            gameX = drawX / GameDrawScale - GameDrawOffsetX;
-            gameY = drawY / GameDrawScale - GameDrawOffsetY;
-        }
 
-        protected void GameToDrawSpace(float gameX, float gameY, out float drawX, out float drawY)
-        {
-            drawX = (gameX + GameDrawOffsetX) * GameDrawScale;
-            drawY = (gameY + GameDrawOffsetY) * GameDrawScale;
-        }
-
-        // TODO: Platform independent input.
-        //public HexCoord? GetTouchResult(MotionEvent activityMotionEvent)
-        //{
-        //    // Assuming the motion event comes from the activity, not the view.
-        //    float pointerViewX = activityMotionEvent.GetX(); //+ visibleRect.Left;
-        //    float pointerViewY = activityMotionEvent.GetY(); //+ visibleRect.Top;
-        //    float pointerCoordGameX, pointerCoordGameY;
-        //    DrawToGameSpace(pointerViewX, pointerViewY, out pointerCoordGameX, out pointerCoordGameY);
-
-        //    foreach (var field in game.GameBoard.GetFields())
-        //    {
-        //        float fieldX, fieldY;
-        //        field.Key.ToCartesian(out fieldX, out fieldY);
-
-        //        float dx = fieldX - pointerCoordGameX;
-        //        float dy = fieldY - pointerCoordGameY;
-        //        float distanceSq = dx * dx + dy * dy;
-
-        //        // Assume you can only press a single field.
-        //        if (distanceSq < AndroidGameView.highlightRadius * AndroidGameView.highlightRadius)
-        //        {
-        //            return field.Key;
-        //        }
-        //    }
-
-        //    return null;
-        //}
 
         #region Drawing
-
-        // TODO: Move more code into this class.
-
-        //protected abstract void OnDraw();
-
-        public abstract void Invalidate();
 
         public static readonly Color[] playerColors = new Color[6]
         {
@@ -192,17 +70,11 @@ namespace HalmaShared
 
         protected readonly Color hightlightColor = new Color(0.1290, 0.4516, 0.4194);
 
-        protected const float offsetPercent = 0.05f;
-        protected const float fieldRadius = 0.2f;
-        protected const float playerRadius = 0.4f;
-        public const float highlightRadius = 0.7f;
 
-        //protected abstract void DrawPlayerInfo();
 
-        //protected abstract void DrawBackground(IEnumerable<HexCoord> fieldPositions, GameBoard.Configuration boardConfig);
+        protected abstract void OnDraw();
 
-        //protected abstract void DrawFields(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields);
-
+        public abstract void Invalidate();
 
         protected TurnAnimation animation = new TurnAnimation();
         public void AnimateTurn(Turn turn, int player)
