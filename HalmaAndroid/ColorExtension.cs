@@ -16,7 +16,7 @@ namespace HalmaAndroid
     {
         public static Android.Graphics.Color ToAndroid(this Xamarin.Forms.Color color)
         {
-            return new Android.Graphics.Color((byte)(255 * color.R), (byte)(255 * color.G), (byte)(255 * color.B));
+            return new Android.Graphics.Color((byte)(255 * color.R), (byte)(255 * color.G), (byte)(255 * color.B), , (byte)(255 * color.A));
         }
     }
 }

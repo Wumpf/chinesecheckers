@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="ApplicationName">HalmaAndroid</string>
-  <string name="menuActivityLabel">Halma - Menu</string>
+  <string name="ApplicationName">Halma</string>
+  <string name="menuActivityLabel">Halma</string>
 </resources>

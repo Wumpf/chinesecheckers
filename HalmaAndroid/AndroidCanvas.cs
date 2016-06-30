@@ -112,7 +112,7 @@ namespace HalmaAndroid
         {
             paintNoAA.Color = color.ToAndroid();
             Canvas.DrawBitmap(gradient0, new Rect(0, 0, gradient0.Width, gradient0.Height),
-                                         new Rect((int)rect.Left, (int)rect.Top, (int)rect.Right, (int)rect.Top), paintNoAA);
+                                         new Rect((int)rect.Left, (int)rect.Top, (int)rect.Right, (int)rect.Bottom), paintNoAA);
         }
 
         #endregion
