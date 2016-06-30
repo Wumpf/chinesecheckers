@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:HalmaShared.Forms;assembly=HalmaShared"
              x:Class="HalmaShared.Forms.MainMenuPage">
   
-  <StackLayout Orientation="Vertical">
+  <StackLayout Orientation="Vertical" HorizontalOptions="Center" VerticalOptions="Center">
     <StackLayout Orientation="Horizontal" HorizontalOptions="CenterAndExpand">
       <Label Text="Number of Players" VerticalOptions="Center" HorizontalOptions="Center" FontSize="16"/>
       <local:BindablePicker SelectedItem="{Binding NumPlayers}" ItemsSource="{x:Static local:MainMenuPage.NumPlayerOptions}" SelectedIndexChanged="OnNumPlayersChanges"/>
