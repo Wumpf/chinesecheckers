@@ -37,8 +37,9 @@ namespace HalmaShared.Player
         /// <summary>
         /// Signals the player that it's turn has ended.
         /// This usually means that a turn has been accepted.
+        /// <param name="cancel">True if the turn was canceled since the user wants to undo the previous turn.</param>
         /// </summary>
-        public abstract void OnTurnEnded();
+        public abstract void OnTurnEnded(bool cancel);
 
         /// <summary>
         /// The index of the player in the current game.

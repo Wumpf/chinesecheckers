@@ -19,14 +19,20 @@ namespace HalmaShared
         /// <summary>
         /// The entire draw area.
         /// </summary>
-        protected Rectangle visibleRect = new Rectangle();
+        protected Rectangle visibleRect;
         /// <summary>
         /// Area for drawing the gameboard.
         /// </summary>
-        protected Rectangle gameBoardRect = new Rectangle();
+        protected Rectangle gameBoardRect;
         protected const int playerInfoBarHeight = 150;
         protected const int playerTextHeight = 80;
 
+        private Rectangle undoButtonRect;
+        private Rectangle redoButtonRect;
+        private const double arrowButtonHorizontalMargin = 20.0;
+        private const double arrowButtonHeight = 40.0;
+        private const double arrowButtonWidth = 40.0;
+        private const float arrowButtomLineThickness = 9.0f;
 
         /// <summary>
         /// Translation offsets for the canvas when drawing with game coordinates.
@@ -93,6 +99,18 @@ namespace HalmaShared
             gameBoardRect.Left = visibleRect.Left;
             gameBoardRect.Right = visibleRect.Right;
 
+            double midHeight = visibleRect.Top + playerInfoBarHeight / 2.0;
+
+            undoButtonRect.Left = visibleRect.Left + arrowButtonHorizontalMargin;
+            undoButtonRect.Right = visibleRect.Left + arrowButtonHorizontalMargin + arrowButtonWidth;
+            undoButtonRect.Top = midHeight - arrowButtonHeight;
+            undoButtonRect.Bottom = midHeight + arrowButtonHeight;
+
+            redoButtonRect.Left = visibleRect.Right - arrowButtonHorizontalMargin - arrowButtonWidth;
+            redoButtonRect.Right = visibleRect.Right - arrowButtonHorizontalMargin;
+            redoButtonRect.Top = midHeight - arrowButtonHeight;
+            redoButtonRect.Bottom = midHeight + arrowButtonHeight;
+
             ResetBoardScale(Board.GetFields());
         }
 
@@ -108,8 +126,10 @@ namespace HalmaShared
             drawY = (gameY + GameDrawOffset.Y) * GameDrawScale;
         }
 
-        public HexCoord? GetTouchResult(Vec2 touchPosition)
+        public MatchInput.TouchResultType GetTouchResult(Vec2 touchPosition, out HexCoord touchedCoord)
         {
+            touchedCoord = HexCoord.Zero;
+
             // Assuming the motion event comes from the activity, not the view.
             Vec2 pointerCoordGame;
             DrawToGameSpace(touchPosition, out pointerCoordGame);
@@ -126,11 +146,17 @@ namespace HalmaShared
                 // Assume you can only press a single field.
                 if (distanceSq < highlightRadius * highlightRadius)
                 {
-                    return field.Key;
+                    touchedCoord = field.Key;
+                    return MatchInput.TouchResultType.Field;
                 }
             }
 
-            return null;
+            if (Board.TurnHistory.CanUndo() && undoButtonRect.Contains(new Point(touchPosition.X, touchPosition.Y)))
+                return MatchInput.TouchResultType.Undo;
+            if (Board.TurnHistory.CanRedo() && redoButtonRect.Contains(new Point(touchPosition.X, touchPosition.Y)))
+                return MatchInput.TouchResultType.Redo;
+
+            return MatchInput.TouchResultType.None;
         }
 
         #endregion
@@ -162,10 +188,10 @@ namespace HalmaShared
             DrawFields(Board.GetFields());
 
             Canvas.ResetTransform();
-            DrawPlayerInfo(CurrentPlayer);
+            DrawTopBar(CurrentPlayer);
         }
 
-        private void DrawPlayerInfo(int currentPlayer)
+        private void DrawTopBar(int currentPlayer)
         {
             Color backgroundColor;
             Color playerTextColor;
@@ -186,8 +212,24 @@ namespace HalmaShared
 
             Canvas.DrawRect(backgroundColor, new Rectangle(visibleRect.Left, visibleRect.Top, visibleRect.Width, playerInfoBarHeight));
 
-            Vec2 textPosition = new Vec2(visibleRect.Left + visibleRect.Width / 2, visibleRect.Top + playerInfoBarHeight / 2.0);
+            double midHeight = visibleRect.Top + playerInfoBarHeight / 2.0;
+
+            Vec2 textPosition = new Vec2(visibleRect.Left + visibleRect.Width / 2, midHeight);
             Canvas.DrawText(playerTextColor, text, textPosition, playerTextHeight);
+
+            {
+                double startOffset = arrowButtomLineThickness * 0.33333;
+
+                // Undo button.
+                Color lineColor = Board.TurnHistory.CanUndo() ? Color.Black : new Color(0.9f);
+                Canvas.DrawLine(lineColor, new Vec2(undoButtonRect.Left + startOffset, midHeight + startOffset), new Vec2(undoButtonRect.Right, undoButtonRect.Top), arrowButtomLineThickness);
+                Canvas.DrawLine(lineColor, new Vec2(undoButtonRect.Left + startOffset, midHeight - startOffset), new Vec2(undoButtonRect.Right, undoButtonRect.Bottom), arrowButtomLineThickness);
+
+                // Redo button.
+                lineColor = Board.TurnHistory.CanRedo() ? Color.Black : new Color(0.9f);
+                Canvas.DrawLine(lineColor, new Vec2(redoButtonRect.Right - startOffset, midHeight + startOffset), new Vec2(redoButtonRect.Left, redoButtonRect.Top), arrowButtomLineThickness);
+                Canvas.DrawLine(lineColor, new Vec2(redoButtonRect.Right - startOffset, midHeight - startOffset), new Vec2(redoButtonRect.Left, redoButtonRect.Bottom), arrowButtomLineThickness);
+            }
 
             // Gradient.
             Canvas.DrawTopDownAlphaGradient(new Color(70 / 255.0, 70 / 255.0, 70 / 255.0, 70 / 255.0),

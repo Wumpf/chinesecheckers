@@ -54,6 +54,7 @@
     <Compile Include="Turn.cs" />
     <Compile Include="TurnAnimation.cs" />
     <Compile Include="Forms\XamarinFormApp.cs" />
+    <Compile Include="TurnHistory.cs" />
     <Compile Include="Vec2Extension.cs" />
   </ItemGroup>
   <ItemGroup>

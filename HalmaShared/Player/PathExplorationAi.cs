@@ -91,7 +91,7 @@ namespace HalmaShared.Player
 #endif
         }
 
-        public override void OnTurnEnded()
+        public override void OnTurnEnded(bool cancel)
         {
 
         }

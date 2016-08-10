@@ -11,7 +11,7 @@ namespace HalmaAndroid
             private GestureDetector scrollListener;
             private ScaleGestureDetector scaleDetector;
 
-            public event FieldTouchedHandler FieldTouched;
+            public event TouchHandler TouchEvent;
 
             public InputListener(HalmaAndroid.MatchView view)
             {
@@ -62,11 +62,10 @@ namespace HalmaAndroid
 
             public bool OnDown(MotionEvent e)
             {
-                if (FieldTouched != null)
+                if (TouchEvent != null)
                 {
-                    var coord = view.GetTouchResult(new Vec2(e.GetX(), e.GetY()));
-                    if (coord != null)
-                        FieldTouched(coord.Value);
+                    HalmaShared.HexCoord coord;
+                    TouchEvent(view.GetTouchResult(new Vec2(e.GetX(), e.GetY()), out coord), coord);
                 }
 
                 // Need to return false, otherwise the event is consumed and we no longer get scroll or scale!
@@ -130,10 +129,10 @@ namespace HalmaAndroid
             return listener.OnTouchEvent(e);
         }
 
-        public override event FieldTouchedHandler FieldTouched
+        public override event TouchHandler FieldTouched
         {
-            add { listener.FieldTouched += value; }
-            remove { listener.FieldTouched -= value; }
+            add { listener.TouchEvent += value; }
+            remove { listener.TouchEvent -= value; }
         }
     }
 }

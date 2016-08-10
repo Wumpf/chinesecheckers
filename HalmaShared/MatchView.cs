@@ -83,6 +83,11 @@ namespace HalmaShared
             Invalidate();
         }
 
+        public bool IsAnimating 
+        {
+            get { return animation.Active; }
+        }
+
         public delegate void AnimationFinishedHandler();
         public event AnimationFinishedHandler TurnAnimationFinished
         {

@@ -43,16 +43,23 @@ namespace HalmaShared
         /// <returns>False if the turn is not valid.</returns>
         public bool ValidateAndUpdateTurnSequence(GameBoard currentBoard, int player)
         {
+            if (!ValidateAndUpdateTurnSequence(currentBoard))
+                return false;
+
+            // Not moving own piece.
+            if (currentBoard[From].PlayerPiece != player)
+                return false;
+
+            return true;
+        }
+        public bool ValidateAndUpdateTurnSequence(GameBoard currentBoard)
+        {
             // No actual move.
             if (From == To)
                 return false;
 
             // One of the fields is invalid.
             if (currentBoard[From].Type == GameBoard.FieldType.Invalid || currentBoard[To].Type == GameBoard.FieldType.Invalid)
-                return false;
-
-            // Not moving own piece.
-            if (currentBoard[From].PlayerPiece != player)
                 return false;
 
             // Target not free.
@@ -81,6 +88,11 @@ namespace HalmaShared
                 TurnSequence = null;
                 return false;
             }
+        }
+
+        public Turn CreateReverseTurn()
+        {
+            return new Turn() { From = to, To = from };
         }
     }
 }

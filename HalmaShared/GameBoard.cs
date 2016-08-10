@@ -115,9 +115,12 @@ namespace HalmaShared
 
         private readonly Dictionary<HexCoord, Field> fields = new Dictionary<HexCoord, Field>();
 
+        public TurnHistory TurnHistory { get; private set; }
+
         public GameBoard(Configuration config)
         {
             Config = config;
+            TurnHistory = new TurnHistory(this);
 
             // Config determines fields per direction.
             int coreSize = 4;
@@ -304,11 +307,15 @@ namespace HalmaShared
         /// </summary>
         public void ExecuteTurn(Turn turn)
         {
+            System.Diagnostics.Debug.Assert(turn.ValidateAndUpdateTurnSequence(this));
+
             var fromBefore = this[turn.From];
             var toBefore = this[turn.To];
 
             this[turn.From] = new Field() { Type = fromBefore.Type, PlayerPiece = toBefore.PlayerPiece };
             this[turn.To] = new Field() { Type = toBefore.Type, PlayerPiece = fromBefore.PlayerPiece };
+
+            TurnHistory.RecordTurn(turn);
         }
 
         /// <summary>

@@ -26,8 +26,11 @@ namespace HalmaShared.Player
             gameInput.FieldTouched += OnFieldTouched;
         }
 
-        private void OnFieldTouched(HexCoord hexcoord)
+        private void OnFieldTouched(MatchInput.TouchResultType touchType, HexCoord hexcoord)
         {
+            if (touchType != MatchInput.TouchResultType.Field)
+                return;
+
             int selectedPiece = gameBoard[hexcoord].PlayerPiece;
 
             // Selected piece to move.
@@ -50,7 +53,7 @@ namespace HalmaShared.Player
             }
         }
 
-        public override void OnTurnEnded()
+        public override void OnTurnEnded(bool cancel)
         {
             gameBoard = null;
             gameInput.FieldTouched -= OnFieldTouched;

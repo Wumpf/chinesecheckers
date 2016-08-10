@@ -8,8 +8,16 @@ namespace HalmaShared
 {
     public abstract class MatchInput : IDisposable
     {
-        public delegate void FieldTouchedHandler(HexCoord hexcoord);
-        public abstract event FieldTouchedHandler FieldTouched;
+        public enum TouchResultType
+        {
+            None,
+            Undo,
+            Redo,
+            Field
+        }
+
+        public delegate void TouchHandler(TouchResultType resultType, HexCoord hexcoord);
+        public abstract event TouchHandler FieldTouched;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
