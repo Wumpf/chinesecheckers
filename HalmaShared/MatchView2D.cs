@@ -130,6 +130,9 @@ namespace HalmaShared
         {
             touchedCoord = HexCoord.Zero;
 
+            if (winningPlayer >= 0)
+                return MatchInput.TouchResultType.None;
+
             // Assuming the motion event comes from the activity, not the view.
             Vec2 pointerCoordGame;
             DrawToGameSpace(touchPosition, out pointerCoordGame);
@@ -217,6 +220,7 @@ namespace HalmaShared
             Vec2 textPosition = new Vec2(visibleRect.Left + visibleRect.Width / 2, midHeight);
             Canvas.DrawText(playerTextColor, text, textPosition, playerTextHeight);
 
+            if (winningPlayer < 0)
             {
                 double startOffset = arrowButtomLineThickness * 0.33333;
 
