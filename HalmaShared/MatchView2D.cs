@@ -37,7 +37,22 @@ namespace HalmaShared
         /// <summary>
         /// Translation offsets for the canvas when drawing with game coordinates.
         /// </summary>
-        public Vec2 GameDrawOffset { get; set; } = new Vec2();
+        public Vec2 GameDrawOffset
+        {
+            get { return gameDrawOffset; }
+            set
+            {
+                double middleOffsetX = gameBoardRect.Size.Width / GameDrawScale / 2 + gameBoardRect.Left / GameDrawScale;
+                double middleOffsetY = gameBoardRect.Size.Height / GameDrawScale / 2 + gameBoardRect.Top / GameDrawScale;
+                gameDrawOffset = new Vec2
+                    (MathUtils.Clamp(value.X, middleOffsetX - gameboardExtentX * 0.6, middleOffsetX + gameboardExtentX * 0.6),
+                     MathUtils.Clamp(value.Y, middleOffsetY - gameboardExtentY * 0.6, middleOffsetX + gameboardExtentY * 0.6));
+            }
+        }
+        private Vec2 gameDrawOffset= new Vec2();
+
+        float gameboardExtentX;
+        float gameboardExtentY;
 
         /// <summary>
         /// Scale factor for the canvas when drawing with game coordinates.
@@ -56,14 +71,15 @@ namespace HalmaShared
         float gameDrawScale;
         float minGameDrawScale;
 
+
         private void ResetBoardScale(IEnumerable<KeyValuePair<HexCoord, GameBoard.Field>> fields)
         {
             // Gather points in cartesian coordinates.
             // All spatial properties here might be precomputed
-            float minX = int.MaxValue;
-            float minY = int.MaxValue;
-            float maxX = int.MinValue;
-            float maxY = int.MinValue;
+            float minGameboardX = int.MaxValue;
+            float minGameboardY = int.MaxValue;
+            float maxGameboardX = int.MinValue;
+            float maxGameboardY = int.MinValue;
             foreach (KeyValuePair<HexCoord, GameBoard.Field> field in fields)
             {
                 if (field.Value.Type == GameBoard.FieldType.Invalid)
@@ -72,23 +88,23 @@ namespace HalmaShared
                 float x, y;
                 field.Key.ToCartesian(out x, out y);
 
-                minX = System.Math.Min(minX, x);
-                maxX = System.Math.Max(maxX, x);
-                minY = System.Math.Min(minY, y);
-                maxY = System.Math.Max(maxY, y);
+                minGameboardX = System.Math.Min(minGameboardX, x);
+                maxGameboardX = System.Math.Max(maxGameboardX, x);
+                minGameboardY = System.Math.Min(minGameboardY, y);
+                maxGameboardY = System.Math.Max(maxGameboardY, y);
             }
-            float extentX = maxX - minX;
-            float extentY = maxY - minY;
+            gameboardExtentX = maxGameboardX - minGameboardX;
+            gameboardExtentY = maxGameboardY - minGameboardY;
 
             // Transform to fit canvas' clipping space. It is important not to use canvas.Width/Height diRectanglely, since the system's buttom bar bar clips!
             double drawAreaWidth = gameBoardRect.Size.Width;
             double drawAreaHeight = gameBoardRect.Size.Height;
-            GameDrawScale = (float)System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / extentX,
-                                                   (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / extentY);
+            GameDrawScale = (float)System.Math.Min((drawAreaWidth - drawAreaWidth * offsetPercent * 2) / gameboardExtentX,
+                                                   (drawAreaHeight - drawAreaHeight * offsetPercent * 2) / gameboardExtentY);
             minGameDrawScale = GameDrawScale;
             GameDrawOffset = new Vec2(
-                ((drawAreaWidth / GameDrawScale - (maxX - minX)) / 2 - minX + gameBoardRect.Left / GameDrawScale),
-                ((drawAreaHeight / GameDrawScale - (maxY - minY)) / 2 - minY + gameBoardRect.Top / GameDrawScale));
+                ((drawAreaWidth / GameDrawScale - gameboardExtentX) / 2 - minGameboardX + gameBoardRect.Left / GameDrawScale),
+                ((drawAreaHeight / GameDrawScale - gameboardExtentY) / 2 - minGameboardY + gameBoardRect.Top / GameDrawScale));
         }
 
         public override void OnSizeChanged(int w, int h, int oldw, int oldh)
