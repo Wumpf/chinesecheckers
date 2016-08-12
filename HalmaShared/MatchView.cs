@@ -68,9 +68,6 @@ namespace HalmaShared
             new Color(238/255.0, 130/255.0, 238/255.0) , new Color(25/255.0, 25/255.0, 112/255.0)
         };
 
-        protected readonly Color hightlightColor = new Color(0.1290, 0.4516, 0.4194);
-
-
 
         protected abstract void OnDraw();
 

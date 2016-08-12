@@ -18,5 +18,6 @@ namespace HalmaShared
         /// Would be nice to have a better abstraction on this.
         /// </summary>
         void DrawTopDownAlphaGradient(Color color, Rectangle rect);
+        void DrawGlow(Color color, Rectangle rect);
     }
 }

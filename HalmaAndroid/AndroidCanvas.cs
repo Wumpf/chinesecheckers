@@ -23,6 +23,7 @@ namespace HalmaAndroid
 
         private Typeface typeface;
         private Bitmap gradient0;
+        private Bitmap glow0;
         private Paint paintNoAA;
         private Paint paintFillAA;
         private Paint paintPlayerText;
@@ -32,6 +33,7 @@ namespace HalmaAndroid
         {
             typeface = Typeface.Create(Typeface.SansSerif, TypefaceStyle.Normal);
             gradient0 = BitmapFactory.DecodeResource(context.Resources, Resource.Drawable.gradient0);
+            glow0 = BitmapFactory.DecodeResource(context.Resources, Resource.Drawable.glow0);
 
             // paints
             paintNoAA = new Paint();
@@ -110,9 +112,22 @@ namespace HalmaAndroid
 
         void ICrossPlatformCanvas.DrawTopDownAlphaGradient(Color color, Rectangle rect)
         {
-            paintNoAA.Color = color.ToAndroid();
-            Canvas.DrawBitmap(gradient0, new Rect(0, 0, gradient0.Width, gradient0.Height),
-                                         new Rect((int)rect.Left, (int)rect.Top, (int)rect.Right, (int)rect.Bottom), paintNoAA);
+            DrawBitmap(gradient0, color, rect);
+        }
+
+        void ICrossPlatformCanvas.DrawGlow(Color color, Rectangle rect)
+        {
+            DrawBitmap(glow0, color, rect);
+        }
+
+        private void DrawBitmap(Bitmap bitmap, Color color, Rectangle rect)
+        {
+            paintNoAA.SetColorFilter(new PorterDuffColorFilter(color.ToAndroid(), PorterDuff.Mode.Multiply));
+
+            Canvas.DrawBitmap(bitmap, new Rect(0, 0, bitmap.Width, bitmap.Height),
+                                      new RectF((float)rect.Left, (float)rect.Top, (float)rect.Right, (float)rect.Bottom), paintNoAA);
+
+            paintNoAA.SetColorFilter(null);
         }
 
         #endregion
@@ -121,6 +136,7 @@ namespace HalmaAndroid
         {
             typeface.Dispose();
             gradient0.Dispose();
+            glow0.Dispose();
 
             paintNoAA.Dispose();
             paintFillAA.Dispose();

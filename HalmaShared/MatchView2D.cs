@@ -147,7 +147,7 @@ namespace HalmaShared
                 double distanceSq = dx * dx + dy * dy;
 
                 // Assume you can only press a single field.
-                if (distanceSq < highlightRadius * highlightRadius)
+                if (distanceSq < highlightTouchSize * highlightTouchSize)
                 {
                     touchedCoord = field.Key;
                     return MatchInput.TouchResultType.Field;
@@ -170,7 +170,8 @@ namespace HalmaShared
         private const float offsetPercent = 0.05f;
         private const float fieldRadius = 0.2f;
         private const float playerRadius = 0.4f;
-        public const float highlightRadius = 0.7f;
+        public const float highlightTouchSize = 0.7f;
+        public const float highlightSize = 2.0f;
 
         private readonly Color lineColor = new Color(240 / 255.0, 240 / 255.0, 240 / 255.0);
 
@@ -236,7 +237,7 @@ namespace HalmaShared
             }
 
             // Gradient.
-            Canvas.DrawTopDownAlphaGradient(new Color(70 / 255.0, 70 / 255.0, 70 / 255.0, 70 / 255.0),
+            Canvas.DrawTopDownAlphaGradient(new Color(1.0f, 1.0f, 1.0f, 70 / 255.0),
                                             new Rectangle(visibleRect.Left, gameBoardRect.Top, visibleRect.Width, 24));
         }
 
@@ -296,7 +297,7 @@ namespace HalmaShared
             {
                 float highlightedX, highlightedY;
                 HighlightedPos.ToCartesian(out highlightedX, out highlightedY);
-                Canvas.DrawCircle(hightlightColor, highlightRadius, new Vec2(highlightedX, highlightedY));
+                Canvas.DrawGlow(playerColors[CurrentPlayer], new Rectangle(highlightedX - highlightSize/2, highlightedY - highlightSize/2, highlightSize, highlightSize));
             }
 
             // Draw points
